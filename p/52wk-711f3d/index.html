@@ -1,0 +1,1314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Savings Paper">
+<meta name="theme-color" content="#E3EAE5">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
+<title>52-Week Savings Paper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600;700&display=swap">
+<style>
+/* Layout: printed sheets lie in one column on a desk; basket, stamp and pencils sit in a small tray
+   at the bottom-right corner. Each sheet is a size container, so its print scales with its width. */
+:root{
+  --desk:#E3EAE5; --desk-2:#D3DDD6; --desk-ink:#4F5F57; --tray:#F4F7F5; --tray-edge:#C3CEC7; --ring:#2D6A4F;
+  --paper:#FFFEFA; --paper-shadow:rgba(25,45,35,.34);
+  --deep:#1B4332; --accent:#2D6A4F; --mint:#E3F4E8; --print:#1F2D27; --muted:#5B6B63;
+  --rule:#98AAA0; --faint:#9AA9A1; --line-in:#8A9A92; --label:#3F4F47;
+  --ink:#24406B; --focus:rgba(233,162,27,.16);
+  --stamp:#2D6A4F; --stamp-bad:#A3392A;
+  --note:#FFF0A0; --note-ink:#3B3820;
+  --wood:#C08A51; --wood-dark:#8E5E2E; --metal:#6F7E77; --cup:#3F6656; --cup-hi:#6E9683;
+  --f-print:"Arimo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-hand:"Caveat","Segoe Print","Bradley Hand","Comic Sans MS",cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --desk:#1B231F; --desk-2:#131915; --desk-ink:#B4C2BA; --tray:#26302B; --tray-edge:#3A4741; --ring:#8FD1AC;
+    --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A3B1AA; --cup:#5E8A75; --cup-hi:#8DB5A1;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --desk:#1B231F; --desk-2:#131915; --desk-ink:#B4C2BA; --tray:#26302B; --tray-edge:#3A4741; --ring:#8FD1AC;
+  --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A3B1AA; --cup:#5E8A75; --cup-hi:#8DB5A1;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation;scroll-padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%,var(--desk),var(--desk-2));background-color:var(--desk);
+  color:var(--print);font-family:var(--f-print);-webkit-tap-highlight-color:transparent}
+.say{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.desk{display:flex;flex-direction:column;align-items:center;gap:30px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:26px 150px}
+
+/* ---------- paper ---------- */
+.sheet{position:relative;width:100%;max-width:780px;container-type:inline-size;border-radius:2px;
+  background-color:var(--paper);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .36 0 0 0 0 .3 .1 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  box-shadow:0 1px 2px rgba(25,45,35,.12),0 16px 34px -16px var(--paper-shadow);
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.in{--fs-title:clamp(21px,3.4cqw + 10px,30px);--fs-sub:clamp(12.5px,.5cqw + 11px,14.5px);
+  --fs-lbl:clamp(13px,.35cqw + 12px,15px);--fs-th:clamp(11.5px,.3cqw + 10.5px,13px);
+  --fs-cell:clamp(13px,.4cqw + 11.5px,15px);
+  padding:22px 18px 18px;padding:clamp(22px,6cqw,52px) clamp(18px,6cqw,56px) 18px}
+@supports not (width:1cqw){.in{--fs-title:22px;--fs-sub:13px;--fs-lbl:14px;--fs-th:12px;--fs-cell:14px}}
+.tab{width:62px;height:5px;background:var(--accent);margin-bottom:14px}
+.title{font:700 var(--fs-title)/1.15 var(--f-print);color:var(--deep);margin:0;text-wrap:balance}
+.sub{font:italic var(--fs-sub)/1.45 var(--f-print);color:var(--muted);margin:8px 0 0;max-width:68ch}
+.hr{border:0;border-top:1px solid var(--rule);margin:14px 0 20px}
+.row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.big{font:700 var(--fs-lbl)/1 var(--f-print);color:var(--accent);padding-bottom:8px;white-space:nowrap}
+.foot{margin-top:28px;text-align:center;font:11px/1.5 var(--f-print);color:var(--muted);letter-spacing:.02em}
+
+/* write-in blanks */
+.blanks{display:grid;grid-template-columns:1fr;gap:12px 30px}
+@container (min-width:520px){.blanks{grid-template-columns:1fr 1fr}}
+.blank{display:flex;align-items:flex-end;gap:6px;min-width:0}
+.lbl{font:700 var(--fs-lbl)/1 var(--f-print);color:var(--print);white-space:nowrap;padding-bottom:8px}
+.ink{flex:1;min-width:0;width:100%;height:34px;margin:0;padding:2px 4px 3px;border:0;border-bottom:1px solid var(--line-in);
+  border-radius:0;background:transparent;color:var(--ink);caret-color:var(--ink);font:600 23px/1 var(--f-hand);
+  outline:none;-webkit-appearance:none;appearance:none;user-select:text;-webkit-user-select:text}
+.ink:focus{background-color:var(--focus)}
+.ink:focus-visible{box-shadow:inset 0 -2px 0 var(--accent)}
+.auto{flex:1;min-width:0;height:34px;padding:2px 4px 3px;border-bottom:1px solid var(--line-in);color:var(--ink);
+  font:600 23px/30px var(--f-hand);white-space:nowrap;overflow:hidden}
+textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padding:0 4px;border:0;resize:none;overflow:hidden;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--line-in) 35px,var(--line-in) 36px);
+  background-attachment:local}
+
+/* tables */
+.tbl{border:1px solid var(--rule);min-width:0}
+.tr{display:grid;border-bottom:1px solid var(--rule);height:42px;align-items:stretch}
+.tr:last-child{border-bottom:0}
+.tr>*{display:flex;align-items:center;justify-content:center;min-width:0;border-right:1px solid var(--rule)}
+.tr>*:last-child{border-right:0}
+.th{background:var(--mint);height:38px}
+.th>*{font:700 var(--fs-th)/1.1 var(--f-print);color:var(--deep);text-align:center;padding:0 2px}
+.wk{font:700 var(--fs-cell)/1 var(--f-print);color:var(--accent)}
+.dep{font:700 var(--fs-cell)/1 var(--f-print);color:var(--print);font-variant-numeric:tabular-nums}
+.tot{font:400 var(--fs-cell)/1 var(--f-print);color:var(--label);font-variant-numeric:tabular-nums}
+.tr .ink{height:100%;border:0;text-align:center;font-size:21px;padding:0 2px}
+.tr>.ink:not(:last-child){border-right:1px solid var(--rule)}
+.weeks .tr{grid-template-columns:16fr 30fr 20fr 22fr 12fr}
+.split{display:grid;grid-template-columns:1fr;gap:0}
+.split .tbl+.tbl{border-top:0}
+.split .tbl+.tbl .th{display:none}
+@container (min-width:600px){
+  .split{grid-template-columns:1fr 1fr;gap:22px}
+  .split .tbl+.tbl{border-top:1px solid var(--rule)}
+  .split .tbl+.tbl .th{display:grid}
+  .weeks .tr{height:34px}
+  .weeks .th{height:36px}
+}
+.days .tr{grid-template-columns:3fr 7fr;height:38px}
+
+/* check boxes */
+.box{width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.box svg{width:28px;height:28px;overflow:visible}
+.box .sq{fill:none;stroke:var(--accent);stroke-width:1.3}
+.tick{fill:none;stroke:var(--ink);stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.box.on .tick{stroke-dashoffset:0}
+
+/* tip boxes */
+.tip{background:var(--mint);border-radius:8px;padding:14px 18px 15px}
+.tip h3{margin:0 0 6px;font:700 15px/1.2 var(--f-print);color:var(--deep)}
+.tip p{margin:0;font:var(--fs-cell)/1.5 var(--f-print);color:var(--print)}
+.tip p+p{margin-top:2px}
+.h4{margin:0 0 4px;font:700 16px/1.2 var(--f-print);color:var(--deep)}
+
+/* thermometer sheet */
+.tgrid{display:grid;grid-template-columns:1fr;gap:26px;margin-top:22px}
+@container (min-width:600px){.tgrid{grid-template-columns:minmax(220px,290px) 1fr;align-items:start}}
+.therm{display:block;width:100%;max-width:300px;margin:0 auto;overflow:visible;cursor:pointer;outline:none;border-radius:10px}
+.therm:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.therm .outline{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round}
+.therm .seg{stroke:var(--rule);stroke-width:.7}
+.therm .tickm{stroke:var(--accent);stroke-width:1}
+.therm .pct{font:400 11px var(--f-print);fill:var(--muted)}
+.therm .usd{font:400 11.5px var(--f-print);fill:var(--print)}
+.therm .major{font-weight:700;fill:var(--accent)}
+.therm .startl{font:700 13px var(--f-print);fill:var(--accent)}
+.therm .pv{stroke:var(--ink);stroke-width:2;stroke-dasharray:5 4}
+.therm text{pointer-events:none}
+.notes{display:flex;flex-direction:column;gap:22px;min-width:0}
+
+/* coins */
+.coins{display:flex;flex-wrap:wrap;justify-content:center;margin:18px -4px 16px}
+.coin{flex:0 0 calc(100% / 6);aspect-ratio:1;padding:2px;border:0;background:none;cursor:pointer;max-width:100%}
+@container (min-width:600px){.coin{flex-basis:calc(100% / 8)}}
+.coin svg{display:block;width:100%;height:100%;overflow:visible}
+.coin .rim{fill:none;stroke:var(--accent);stroke-width:2.3}
+.coin .rim2{fill:none;stroke:var(--rule);stroke-width:1}
+.coin .amt{font:700 25px var(--f-print);fill:var(--label);text-anchor:middle}
+.coin .scrib{fill:none;stroke-width:8.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0;opacity:.92}
+.coin .under{opacity:.38}
+
+/* notes on the desk */
+.note{align-self:flex-end;width:min(270px,86%);margin:0 6px -46px 0;position:relative;z-index:3;transform:rotate(2.2deg);
+  background:var(--note);color:var(--note-ink);padding:14px 16px 16px;border:0;text-align:left;cursor:pointer;
+  font:600 19px/1.22 var(--f-hand);box-shadow:0 2px 3px rgba(40,40,20,.15),0 12px 22px -12px rgba(40,40,20,.45);
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.note b{font-weight:700}
+.note small{display:block;margin-top:8px;font:600 15px/1 var(--f-hand);opacity:.85}
+.note.warn{align-self:center;margin:0 0 -10px;transform:rotate(-1deg);cursor:default;color:var(--stamp-bad);width:min(330px,94%)}
+
+/* desk tray */
+.tools{position:fixed;z-index:40;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;gap:2px;padding:4px 6px 2px;border-radius:16px;background:var(--tray);border:1px solid var(--tray-edge);
+  box-shadow:0 10px 24px -12px rgba(0,0,0,.45);transition:opacity .2s,transform .2s;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tools.away{opacity:0;transform:translateY(24px);pointer-events:none}
+.tool{display:flex;flex-direction:column;align-items:center;gap:0;width:58px;padding:2px 0 0;border:0;background:none;cursor:pointer;
+  color:var(--desk-ink);font:600 15px/1 var(--f-hand);border-radius:12px}
+.tool svg{width:44px;height:44px;overflow:visible}
+.tool span{padding-bottom:3px}
+.tool:focus-visible,.pencil:focus-visible,.oops:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.coin:focus-visible,.box:focus-visible,.note:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#stampBody{transform-box:view-box;transform-origin:24px 40px}
+.basket .ball-in{opacity:0;transition:opacity .25s}
+.basket.full .ball-in{opacity:1}
+.fan{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;flex-direction:column;gap:6px;padding:10px 10px 10px 18px;
+  border-radius:14px;background:var(--tray);border:1px solid var(--tray-edge);box-shadow:0 14px 28px -14px rgba(0,0,0,.5)}
+.menu{gap:8px;padding:12px;width:min(270px,calc(100vw - 32px))}
+.menu p{margin:0 2px 2px;font:600 18px/1.2 var(--f-hand);color:var(--desk-ink)}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--tray-edge);border-radius:10px;background:var(--paper);
+  color:var(--print);padding:9px 12px 10px;cursor:pointer;font:700 15px/1.25 var(--f-print)}
+.opt small{display:block;margin-top:2px;font:400 13px/1.3 var(--f-print);color:var(--muted)}
+.opt:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+@media (max-width:360px){.tool{width:52px}}
+.pencil{display:flex;align-items:center;gap:8px;border:0;background:none;padding:2px 4px;cursor:pointer;color:var(--desk-ink);
+  font:600 17px/1 var(--f-hand);transition:transform .18s}
+.pencil svg{width:118px;height:20px}
+.pencil[aria-pressed="true"]{transform:translateX(-10px)}
+.oops{position:absolute;right:0;bottom:calc(100% + 10px);max-width:calc(100vw - 32px);white-space:nowrap;border:0;cursor:pointer;
+  background:var(--note);color:var(--note-ink);font:600 18px/1 var(--f-hand);padding:9px 12px 10px;transform:rotate(-2deg);
+  box-shadow:0 8px 18px -10px rgba(40,40,20,.55)}
+.oops.ask{cursor:default;transform:rotate(1.5deg)}
+
+/* effects layer: paper ball, stamp marks */
+.fx{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden}
+.ball{position:absolute;left:0;top:0;will-change:transform}
+.ball svg{display:block;width:100%;height:100%;filter:drop-shadow(0 6px 6px rgba(0,0,0,.25))}
+.mark{position:absolute;padding:5px 11px 6px;border:2.5px solid var(--stamp);border-radius:7px;color:var(--stamp);
+  text-align:center;font:700 19px/1 var(--f-print);letter-spacing:.14em;opacity:.86;transform:rotate(-9deg);background:transparent}
+.mark span{display:block;margin-top:3px;font-size:11px;letter-spacing:.08em}
+.mark.bad{border-color:var(--stamp-bad);color:var(--stamp-bad);letter-spacing:.06em;font-size:15px}
+.creases{position:absolute;left:0;pointer-events:none;z-index:6;opacity:0}
+.creases svg{display:block}
+.sheet.busy{z-index:20;will-change:transform,clip-path}
+@media (prefers-reduced-motion:reduce){.pencil{transition:none}.tools{transition:opacity .2s}.tools.away{transform:none}}
+
+/* printing: only the sheets, one per page, with what was written and colored */
+@media print{
+  @page{margin:.45in}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#fff!important}
+  .desk{display:block;padding:0}
+  .tools,.note,.fx,.say,.creases{display:none!important}
+  /* a size container can't be split across pages cleanly, so print uses the wide layout directly */
+  .sheet{max-width:none;width:100%;box-shadow:none;border-radius:0;background:#fff;visibility:visible!important;
+    container-type:normal;display:block}
+  .sheet+.sheet{break-before:page;page-break-before:always}
+  .in{--fs-title:26px;--fs-sub:13px;--fs-lbl:14px;--fs-th:12px;--fs-cell:13.5px}
+  .blanks{grid-template-columns:1fr 1fr}
+  .tgrid{grid-template-columns:minmax(220px,260px) 1fr;align-items:start}
+  .split{grid-template-columns:1fr 1fr;gap:22px}
+  .split .tbl+.tbl{border-top:1px solid var(--rule)}
+  .split .tbl+.tbl .th{display:grid}
+  .coin{flex-basis:calc(100% / 9)!important}
+  /* a few blank pixels on top, so no sliver of the next sheet's tab lands on the previous page */
+  .in{padding:8px 0 0}
+  .ink:focus{background-color:transparent;box-shadow:none}
+  .tgrid{margin-top:14px}
+  .therm{max-width:250px}
+  .weeks .tr{height:26px}
+  .weeks .th{height:30px}
+  .tr .ink{font-size:18px}
+  .days .tr{height:32px}
+  .coins{margin:10px -4px 8px}
+  .foot{margin-top:12px}
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="grainC" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.5 0 0 0 -.12" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in" result="g"/>
+      <feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="3" result="w"/>
+      <feDisplacementMap in="g" in2="w" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="grainT" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.4 0 0 0 -.05" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
+    </filter>
+    <clipPath id="coinClip" clipPathUnits="userSpaceOnUse"><circle cx="50" cy="50" r="41.2"/></clipPath>
+    <radialGradient id="crShade" cx="50%" cy="50%" r="70%">
+      <stop offset="0" stop-color="#14231B" stop-opacity=".04"/>
+      <stop offset="1" stop-color="#14231B" stop-opacity=".3"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<main class="desk" id="desk" aria-label="52-Week Savings Challenge pages">
+  <p class="note warn" id="nosave" role="alert" hidden></p>
+  <button class="note" id="note" type="button" hidden>
+    <b>Hi!</b> Tap a line to write. Tap a coin, a box or the thermometer to color it in, and tap again to erase.
+    What you write stays on this device: the stamp saves it, and the folder keeps a copy as a file.
+    The basket throws a whole page away.
+    <small>Tap this note to put it away</small>
+  </button>
+</main>
+
+<div class="tools" id="tools">
+  <button class="tool basket" id="t-toss" type="button" aria-label="Toss this page">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g class="ball-in"><circle cx="22" cy="12" r="8" fill="#F7F5EE" stroke="#CFCBBF"/><path d="M16 10l5 3 4-5M19 17l3-4 5 2" stroke="#BDB8AB" fill="none"/></g>
+      <path d="M8 13h32l-4 32H12z" style="fill:var(--tray);stroke:var(--metal)" stroke-width="1.8" stroke-linejoin="round" fill-opacity=".55"/>
+      <path d="M15 14l2.2 30M20.5 14l.9 30M27.5 14l-.9 30M33 14l-2.2 30M9.3 23h29.4M10.4 32h27.2" style="stroke:var(--metal)" stroke-width="1" opacity=".75"/>
+      <path d="M7 13h34" style="stroke:var(--metal)" stroke-width="2.6" stroke-linecap="round"/>
+    </svg>
+    <span>toss</span>
+  </button>
+  <button class="tool" id="t-save" type="button" aria-label="Save">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g id="stampBody">
+        <circle cx="24" cy="9" r="6.5" style="fill:var(--wood)"/>
+        <rect x="21" y="14" width="6" height="11" rx="1.5" style="fill:var(--wood-dark)"/>
+        <rect x="9" y="24" width="30" height="10" rx="2.5" style="fill:var(--wood)"/>
+        <rect x="11" y="34" width="26" height="5" rx="1" style="fill:var(--stamp)"/>
+      </g>
+      <path d="M9 45h30" style="stroke:var(--stamp)" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+    </svg>
+    <span>save</span>
+  </button>
+  <button class="tool" id="t-print" type="button" aria-label="Print">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <rect x="14" y="5" width="20" height="14" rx="1" fill="#FFFEFA" style="stroke:var(--metal)" stroke-width="1.6"/>
+      <path d="M18 10h12M18 14h8" style="stroke:var(--rule)" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="6" y="18" width="36" height="16" rx="4" style="fill:var(--cup)"/>
+      <circle cx="35" cy="24" r="1.8" style="fill:var(--cup-hi)"/>
+      <rect x="13" y="29" width="22" height="15" rx="1" fill="#FFFEFA" style="stroke:var(--metal)" stroke-width="1.6"/>
+      <path d="M17 34h14M17 38h10" style="stroke:var(--accent)" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <span>print</span>
+  </button>
+  <button class="tool" id="t-folder" type="button" aria-label="Folder: save or open a copy" aria-expanded="false" aria-controls="menu">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M5 13a3 3 0 0 1 3-3h10l4 4h18a3 3 0 0 1 3 3v3H5z" fill="#D9B46E"/>
+      <rect x="11" y="9" width="24" height="16" rx="1" fill="#FFFEFA" style="stroke:var(--metal)" stroke-width="1.2" transform="rotate(-6 23 17)"/>
+      <path d="M15 14h14M15 18h10" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round" transform="rotate(-6 23 17)"/>
+      <path d="M5 19h38l-2.5 21a3 3 0 0 1-3 2.6H10.5a3 3 0 0 1-3-2.6z" fill="#EDCB86" style="stroke:var(--wood-dark)" stroke-width="1.2"/>
+    </svg>
+    <span>folder</span>
+  </button>
+  <button class="tool" id="t-pencil" type="button" aria-label="Pencil colors" aria-expanded="false" aria-controls="fan">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g transform="rotate(-14 24 38)"><rect x="15" y="9" width="5" height="26" rx="1" fill="#E9C35A"/><path d="M15 9l2.5-6 2.5 6z" fill="#EBD2A5"/></g>
+      <g transform="rotate(13 24 38)"><rect x="28" y="10" width="5" height="26" rx="1" fill="#86BFE8"/><path d="M28 10l2.5-6 2.5 6z" fill="#EBD2A5"/></g>
+      <g><rect x="21.5" y="7" width="5.4" height="28" rx="1" style="fill:var(--pc,#8FD1AC)"/><path d="M21.5 7l2.7-6.5 2.7 6.5z" fill="#EBD2A5"/><path d="M23.3 2.6l.9-2.1.9 2.1z" style="fill:var(--pc,#8FD1AC)"/></g>
+      <path d="M10 23h28l-3 22H13z" style="fill:var(--cup)"/>
+      <path d="M10 23h28" style="stroke:var(--cup-hi)" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <span>colors</span>
+  </button>
+  <div class="fan" id="fan" hidden></div>
+  <div class="fan menu" id="menu" hidden></div>
+  <input type="file" id="copyFile" accept=".json,application/json,text/plain" hidden>
+  <p class="oops ask" id="ask" hidden></p>
+  <button class="oops" id="oops" type="button" hidden>Oops? Take it back</button>
+</div>
+<div class="fx" id="fx"></div>
+<p class="say" id="say" aria-live="polite"></p>
+
+<script>
+(() => {
+'use strict';
+const KEY = 'solenhq-paper-52wk-v1';          // never rename: it holds a buyer's whole year
+const PKEY = KEY + '-place';                   // where the reader left off (a convenience, kept apart from the paper)
+const PENCILS = [
+  {id:'mint', c:'#8FD1AC', name:'Mint'}, {id:'sun', c:'#F3C94F', name:'Sunflower'},
+  {id:'peach', c:'#F3A472', name:'Peach'}, {id:'rose', c:'#EC93AC', name:'Rose'},
+  {id:'sky', c:'#86BFE8', name:'Sky'}, {id:'lilac', c:'#B5A2E6', name:'Lilac'}];
+const pencil = id => PENCILS.find(p => p.id === id) || PENCILS[0];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COARSE = matchMedia('(pointer: coarse)').matches;
+const SHEET_IDS = ['therm', 'classic', 'coins'];
+const DAY = 864e5;
+const NS = 'http://www.w3.org/2000/svg';
+
+// ---------------- state and storage ----------------
+// S = {v, f: field values by "sheet.field" key, pencil, note (first-visit note put away), trash (last tossed page)}
+let raw0 = null, dirty = false, frozen = false, saveT;
+function blankState(){ return {v:1, f:{}, pencil:'mint', note:false, trash:null}; }
+function migrate(o){
+  // first prototype stored the thermometer as 21 cells (bulb + 20 lines of 5%)
+  const f = o.f;
+  // ... and its start-date line under the key the START bulb now uses
+  if (typeof f['therm.start'] === 'string' && !PENCILS.some(p => p.id === f['therm.start'])){
+    if (!f['therm.start-date']) f['therm.start-date'] = f['therm.start'];
+    delete f['therm.start'];
+  }
+  if (Object.keys(f).some(k => k.startsWith('therm.cell.'))){
+    if (f['therm.cell.0']) f['therm.start'] = f['therm.cell.0'];
+    const bands = [];
+    for (let k = 1; k <= 20 && f[`therm.cell.${k}`]; k++){
+      const c = f[`therm.cell.${k}`];
+      if (bands.length && bands[bands.length - 1][1] === c) bands[bands.length - 1][0] = k * 5; else bands.push([k * 5, c]);
+    }
+    if (bands.length) f['therm.bands'] = bands;
+    Object.keys(f).filter(k => k.startsWith('therm.cell.')).forEach(k => delete f[k]);
+  }
+  return o;
+}
+function validTrash(t){
+  if (!t || !SHEET_IDS.includes(t.id) || typeof t.saved !== 'object' || !t.saved || !(t.at > 0)) return null;
+  return Date.now() - t.at < DAY ? t : null;
+}
+function load(){
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) { return blankState(); }
+  raw0 = raw; frozen = false;
+  if (!raw) return blankState();
+  try {
+    const o = JSON.parse(raw);
+    if (!o || typeof o !== 'object' || !o.f || typeof o.f !== 'object' || Array.isArray(o.f)) throw new Error('shape');
+    if (o.v > 1) frozen = true;                // written by a newer page: show it, never overwrite it
+    return migrate({v:1, f:o.f, pencil:pencil(o.pencil).id, note:!!o.note, trash:validTrash(o.trash)});
+  } catch (e) {
+    try { if (!localStorage.getItem(KEY + '.bak')) localStorage.setItem(KEY + '.bak', raw); } catch (e2) {}
+    return blankState();
+  }
+}
+function canStore(){
+  try { localStorage.setItem(KEY + '-t', '1'); localStorage.removeItem(KEY + '-t'); return true; } catch (e) { return false; }
+}
+function persist(){
+  clearTimeout(saveT);
+  if (frozen){ warn('This paper was saved by a newer version of this page. Close this tab and open the link again.'); return false; }
+  try {
+    const raw = JSON.stringify(S);
+    localStorage.setItem(KEY, raw);
+    raw0 = raw; dirty = false;
+    return true;
+  } catch (e) {
+    warn();
+    return false;
+  }
+}
+function changed(key){
+  // writing on a page you threw away makes it a new page: the old one can't come back over it
+  if (S.trash && key && key.startsWith(S.trash.id + '.')){ S.trash = null; showTrash(); }
+  dirty = true; clearTimeout(saveT); saveT = setTimeout(persist, 600);
+}
+let S = load();
+
+// ---------------- tiny DOM helpers ----------------
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})){
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) el.append(kid);
+  return el;
+}
+function s(tag, attrs, ...kids){
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, v);
+  for (const kid of kids.flat(Infinity)) if (kid != null) el.append(kid);
+  return el;
+}
+const money = v => '$' + v.toLocaleString('en-US');
+const cents = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const today = () => new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+function rng(seed){ let x = (seed % 2147483646) + 1; return () => (x = x * 16807 % 2147483647) / 2147483647; }
+const sayEl = document.getElementById('say');
+function say(t){ sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = t; }, 40); }
+const writing = () => !!(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('ink'));
+
+// a tap that only closes the phone keyboard must not also color or erase what lies under the finger
+let dismissTap = false;
+document.addEventListener('pointerdown', e => {
+  dismissTap = e.pointerType === 'touch' && writing() && !(e.target.closest && e.target.closest('.ink'));
+}, true);
+function eatDismissTap(){ const d = dismissTap; dismissTap = false; return d; }
+
+// every field registers how to show its saved value; render(sheet) repaints one sheet from S
+const FIELDS = new Map();
+function reg(key, paint){ FIELDS.set(key, paint); }
+function render(prefix){
+  for (const [k, paint] of FIELDS) if (!prefix || k.startsWith(prefix + '.')) paint(S.f[k], false);
+}
+function setF(key, v){
+  if (v === undefined || v === '' || v === false || (Array.isArray(v) && !v.length)) delete S.f[key]; else S.f[key] = v;
+}
+
+// ---------------- paper parts ----------------
+function fit(el, rows){
+  // ruled boxes grow a ruled line at a time, so nothing written is ever hidden
+  el.style.height = rows * 36 + 'px';
+  const need = Math.ceil((el.scrollHeight - 1) / 36) * 36;
+  if (need > rows * 36) el.style.height = need + 'px';
+  el.scrollTop = 0;
+}
+const AREAS = [];
+function ink(key, o = {}){
+  const area = !!o.lines;
+  const el = h(area ? 'textarea' : 'input', {
+    class:'ink', id:key.replace(/\./g, '-'), 'data-key':key, autocomplete:'off', autocorrect:'off',
+    autocapitalize:o.cap || 'sentences', spellcheck:'false', maxlength:o.max || 40, inputmode:o.mode,
+    enterkeyhint:area ? null : 'done', 'aria-label':o.label, rows:o.lines, type:area ? null : 'text'});
+  if (area){ el.style.setProperty('--rows', o.lines); AREAS.push([el, o.lines]); el.addEventListener('blur', () => { el.scrollTop = 0; }); }
+  el.addEventListener('input', () => {
+    if (area) fit(el, o.lines);
+    setF(key, el.value);
+    if (o.onInput) o.onInput(el.value);
+    changed(key);
+  });
+  if (!area) el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } });
+  reg(key, v => { el.value = v || ''; if (area) fit(el, o.lines); });
+  return el;
+}
+function blank(label, key, o = {}){
+  return h('label', {class:'blank'}, h('span', {class:'lbl', text:label}),
+    ink(key, {label:label.replace(/[:\s$]+$/, ''), ...o}));
+}
+function autoBlank(label, key){
+  const out = h('span', {class:'auto', id:key.replace(/\./g, '-')});
+  return [h('div', {class:'blank'}, h('span', {class:'lbl', text:label}), out), out];
+}
+function checkbox(key, label, onToggle){
+  const tick = s('path', {d:'M4 12.8 9.2 18 20.5 4.8', class:'tick', pathLength:'1'});
+  const btn = h('button', {class:'box', type:'button', 'aria-label':label, 'aria-pressed':'false'},
+    s('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true'}, s('rect', {x:5, y:5, width:14, height:14, class:'sq'}), tick));
+  function paint(on, anim){
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('on', !!on);
+    if (anim && on && !REDUCED) tick.animate([{strokeDashoffset:1}, {strokeDashoffset:0}], {duration:260, easing:'ease-out'});
+  }
+  btn.addEventListener('click', () => {
+    if (eatDismissTap()) return;
+    const on = !S.f[key];
+    setF(key, on);
+    paint(on, true);
+    if (onToggle) onToggle(on);
+    changed(key);
+  });
+  reg(key, v => paint(!!v, false));
+  return btn;
+}
+function tip(title, ...paras){ return h('div', {class:'tip'}, h('h3', {text:title}), paras.map(p => h('p', {text:p}))); }
+function head(title, sub){
+  return [h('div', {class:'tab'}), h('h2', {class:'title', text:title}), h('p', {class:'sub', text:sub}), h('hr', {class:'hr'})];
+}
+const FOOT = '© SOLENHQ · 52-Week Savings Challenge · For personal use only';
+function sheet(id, label, kids, extraFoot){
+  return h('article', {class:'sheet', 'data-sheet':id, 'data-label':label, id:'sheet-' + id, 'aria-label':label},
+    h('div', {class:'in'}, kids, h('p', {class:'foot'}, FOOT, extraFoot ? [h('br'), extraFoot] : null)));
+}
+
+// ---------------- thermometer ($1,378) ----------------
+// stored as the START bulb's pencil plus color bands [[up to %, pencil], ...]; "part of a line is fine"
+const GOAL = 1378, MILES = [25, 50, 75, 100];
+let paintTherm = () => {};
+function thermometer(){
+  const VBW = 240, x0 = 70, TW = 52, half = TW / 2, R = TW * .85, SEG = 21, N = 20, cap = 40, U = SEG * N / 100;
+  const joint = cap + N * SEG, y0 = joint + Math.sqrt(R * R - half * half), bottom = y0 + R;
+  const yOf = p => joint - p * U;
+  const svg = s('svg', {class:'therm', viewBox:`0 0 ${VBW} ${Math.ceil(bottom + 8)}`, role:'slider', tabindex:'0',
+    'aria-label':'Savings thermometer', 'aria-valuemin':'0', 'aria-valuemax':'100', 'aria-orientation':'vertical'});
+  const outline = `M${x0} ${joint}L${x0} ${cap}A${half} ${half} 0 0 1 ${x0 + TW} ${cap}L${x0 + TW} ${joint}` +
+                  `A${R} ${R} 0 1 1 ${x0} ${joint}Z`;
+  svg.append(s('defs', null, s('clipPath', {id:'thermClip', clipPathUnits:'userSpaceOnUse'}, s('path', {d:outline}))));
+  const fills = s('g', {'clip-path':'url(#thermClip)', filter:'url(#grainT)'});
+  const bulb = s('rect', {x:x0 + half - R - 2, y:joint - .3, width:2 * R + 4, height:bottom - joint + 3, opacity:'0'});
+  const bands = s('g');
+  fills.append(bulb, bands);
+  svg.append(s('rect', {x:0, y:0, width:VBW, height:Math.ceil(bottom + 8), fill:'transparent'}), fills, s('path', {class:'outline', d:outline}));
+  svg.append(s('line', {class:'seg', x1:x0 + 1.5, x2:x0 + TW - 1.5, y1:joint, y2:joint}));
+  for (let k = 1; k <= N; k++){
+    const y = joint - k * SEG, major = k % 5 === 0;
+    svg.append(s('line', {class:'seg', x1:x0 + 1.5, x2:x0 + TW - 1.5, y1:y, y2:y}),
+      s('line', {class:'tickm', x1:x0 + TW, x2:x0 + TW + 6, y1:y, y2:y}),
+      s('text', {class:'pct' + (major ? ' major' : ''), x:x0 - 7, y:y + 4, 'text-anchor':'end'}, `${k * 5}%`),
+      s('text', {class:'usd' + (major ? ' major' : ''), x:x0 + TW + 11, y:y + 4}, cents(GOAL * k / N)));
+  }
+  svg.append(s('text', {class:'startl', x:x0 + half, y:y0 + 4.5, 'text-anchor':'middle'}, 'START'));
+  const pv = s('line', {class:'pv', x1:x0 - 4, x2:x0 + TW + 4, y1:0, y2:0, display:'none'});
+  svg.append(pv);
+
+  const getBands = () => Array.isArray(S.f['therm.bands']) ? S.f['therm.bands'].filter(b => Array.isArray(b) && b[0] > 0) : [];
+  const level = () => { const b = getBands(); return b.length ? b[b.length - 1][0] : 0; };
+  const fmtP = p => (Math.round(p * 10) / 10).toString().replace(/\.0$/, '');
+  function describe(){
+    const L = level();
+    svg.setAttribute('aria-valuenow', String(Math.round(L)));
+    svg.setAttribute('aria-valuetext', !S.f['therm.start'] ? 'Not started' :
+      L ? `Colored to ${fmtP(L)}%, about ${cents(GOAL * L / 100)} of ${money(GOAL)}` : 'START bulb colored');
+  }
+  const band = (a, b, c) => {
+    const r = s('rect', {x:x0 - 1, y:yOf(b), width:TW + 2, height:yOf(a) - yOf(b) + .4});
+    r.style.fill = pencil(c).c;
+    bands.append(r);
+    return r;
+  };
+  // grow = {from, to}: everything up to `from` is drawn as it was, the new part is colored in upward
+  paintTherm = (grow) => {
+    const st = S.f['therm.start'];
+    bulb.setAttribute('opacity', st ? '1' : '0');
+    if (st) bulb.style.fill = pencil(st).c;
+    bands.replaceChildren();
+    const cut = grow && !REDUCED ? grow.from : Infinity;
+    let from = 0;
+    getBands().forEach(([to, c]) => { const top = Math.min(to, cut); if (top > from) band(from, top, c); from = to; });
+    if (cut !== Infinity && grow.to > grow.from){
+      const r = band(grow.from, grow.to, S.pencil);
+      r.style.transformBox = 'fill-box'; r.style.transformOrigin = '50% 100%';
+      r.animate([{transform:'scaleY(0)'}, {transform:'scaleY(1)'}], {duration:380, easing:'cubic-bezier(.3,.7,.3,1)'})
+        .finished.then(() => paintTherm(false), () => {});
+    }
+    describe();
+  };
+  reg('therm.start', () => paintTherm(false));
+  reg('therm.bands', () => paintTherm(false));
+
+  function milestones(a, b){
+    MILES.forEach((m, i) => {
+      const dk = `therm.day.${i}`, ak = `therm.dayauto.${i}`;
+      if (b >= m && a < m && !S.f[dk]){ S.f[dk] = today(); S.f[ak] = true; FIELDS.get(dk)(S.f[dk]); }
+      else if (b < m && a >= m && S.f[ak]){
+        if (S.f[dk] === today()){ delete S.f[dk]; FIELDS.get(dk)(undefined); }   // same-day correction only
+        delete S.f[ak];
+      }
+    });
+  }
+  function setLevel(p, grow){
+    const a = S.f['therm.start'] ? level() : -1, before = level();
+    if (!S.f['therm.start']) S.f['therm.start'] = S.pencil;
+    let b = getBands();
+    if (p > level()){
+      const last = b[b.length - 1];
+      if (last && last[1] === S.pencil) last[0] = p; else b.push([p, S.pencil]);
+    } else {
+      b = b.filter((band, i) => i === 0 ? true : b[i - 1][0] < p);
+      if (b.length) b[b.length - 1][0] = Math.min(b[b.length - 1][0], p);
+      b = b.filter(band => band[0] > 0);
+    }
+    setF('therm.bands', b);
+    milestones(Math.max(a, 0), p);
+    paintTherm(grow && p > before ? {from:before, to:p} : false);
+    changed('therm.bands');
+  }
+  let pending = null;   // a big erase waits for a second tap on the same spot
+  function clearPending(){ if (pending){ clearTimeout(pending.t); pending = null; pv.setAttribute('display', 'none'); hideAsk(); } }
+  function tapAt(p){
+    // p: percent (0..100), or -1 for the START bulb
+    const L = level(), started = !!S.f['therm.start'];
+    if (p < 0){
+      if (!started){ S.f['therm.start'] = S.pencil; paintTherm(false); milestones(0, 0); changed('therm.start'); say('START bulb colored'); return; }
+      if (L === 0){ delete S.f['therm.start']; paintTherm(false); changed('therm.start'); say('START bulb erased'); return; }
+      p = 0;
+    }
+    if (started && Math.abs(p - L) < .5) return;
+    if (p < L && L - p > 5){
+      if (pending && Math.abs(pending.p - p) <= 3){ const q = pending.p; clearPending(); setLevel(q, false); say(`Erased down to ${fmtP(q)}%`); return; }
+      clearPending();
+      pending = {p, t:setTimeout(clearPending, 3000)};
+      pv.setAttribute('y1', yOf(p)); pv.setAttribute('y2', yOf(p)); pv.setAttribute('display', '');
+      showAsk(p === 0 ? 'Tap there again to erase it all' : `Tap there again to erase down to ${fmtP(p)}%`, 3000);
+      return;
+    }
+    clearPending();
+    setLevel(p, p > L);
+    say(`Colored to ${fmtP(level())}%`);
+  }
+  svg.addEventListener('click', e => {
+    if (eatDismissTap() || e.detail === 0) return;
+    const m = svg.getScreenCTM(); if (!m) return;
+    const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    const y = pt.matrixTransform(m.inverse()).y;
+    if (y > joint + 2) return tapAt(-1);
+    tapAt(Math.max(.5, Math.min(100, Math.round((joint - y) / U * 2) / 2)));
+  });
+  svg.addEventListener('keydown', e => {
+    const L = level(), step = {ArrowUp:1, ArrowRight:1, ArrowDown:-1, ArrowLeft:-1, PageUp:5, PageDown:-5}[e.key];
+    if (step){
+      e.preventDefault();
+      if (!S.f['therm.start']) return tapAt(-1);
+      const p = Math.max(0, Math.min(100, Math.round(L + step)));
+      if (p !== L){ clearPending(); setLevel(p, p > L); say(`${p}%`); }
+    } else if (e.key === 'Home'){ e.preventDefault(); if (S.f['therm.start']){ clearPending(); setLevel(0, false); say('0%'); } }
+    else if (e.key === 'End'){ e.preventDefault(); if (!S.f['therm.start']) S.f['therm.start'] = S.pencil; setLevel(100, true); say('100%'); }
+  });
+  return svg;
+}
+
+// ---------------- coins ----------------
+function scribble(seed){
+  const r = rng(seed), a = (-35 + (r() - .5) * 18) * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+  const pts = []; let v = -47, side = -1;
+  while (v <= 47){ pts.push([side * (49 + r() * 5), v + (r() - .5) * 2]); side = -side; v += 5.6 + r() * 1.4; }
+  return pts.map(([u, w], i) => (i ? 'L' : 'M') + (50 + u * ca - w * sa).toFixed(1) + ' ' + (50 + u * sa + w * ca).toFixed(1)).join('');
+}
+let coinTotals = () => {};
+function coin(amt){
+  const key = `coins.c.${amt}`;
+  const under = s('circle', {class:'under', cx:50, cy:50, r:41, filter:'url(#grainC)'});
+  const scrib = s('path', {class:'scrib', d:scribble(amt * 7919), pathLength:'1', 'clip-path':'url(#coinClip)', filter:'url(#grainC)'});
+  const g = s('g', null, under, scrib);
+  const btn = h('button', {class:'coin', type:'button', 'aria-label':`$${amt} coin`, 'aria-pressed':'false'},
+    s('svg', {viewBox:'0 0 100 100', 'aria-hidden':'true'}, g,
+      s('circle', {class:'rim', cx:50, cy:50, r:42}), s('circle', {class:'rim2', cx:50, cy:50, r:34.4}),
+      s('text', {class:'amt', x:50, y:58.8}, `$${amt}`)));
+  function paint(v, anim){
+    btn.setAttribute('aria-pressed', v ? 'true' : 'false');
+    if (v){
+      const c = pencil(v).c;
+      under.style.fill = c; scrib.style.stroke = c; g.style.display = '';
+      if (anim && !REDUCED){
+        scrib.animate([{strokeDashoffset:1}, {strokeDashoffset:0}], {duration:420, easing:'cubic-bezier(.4,.1,.4,1)'});
+        under.animate([{opacity:0}, {opacity:.38}], {duration:420, easing:'ease-in'});
+      }
+    } else if (anim && !REDUCED){
+      settle(g.animate([{opacity:1}, {opacity:0}], {duration:200}), 200).then(() => { if (!S.f[key]) g.style.display = 'none'; });
+    } else g.style.display = 'none';
+  }
+  btn.addEventListener('click', () => {
+    if (eatDismissTap()) return;
+    setF(key, S.f[key] ? undefined : S.pencil);
+    paint(S.f[key], true);
+    coinTotals();
+    try { navigator.vibrate && navigator.vibrate(8); } catch (e) {}
+    changed(key);
+  });
+  reg(key, v => paint(v, false));
+  return btn;
+}
+
+// ---------------- the three sheets ----------------
+function sheetTherm(){
+  const lines = (n, key, label) => ink(key, {lines:n, max:n * 60, label});
+  const days = h('div', {class:'tbl days'},
+    h('div', {class:'tr th'}, h('span', {text:'Milestone'}), h('span', {text:'Date'})),
+    MILES.map((m, i) => h('div', {class:'tr'}, h('span', {class:'wk', text:m + '%'}),
+      ink(`therm.day.${i}`, {label:`Date I reached ${m}%`, max:16, onInput:() => { delete S.f[`therm.dayauto.${i}`]; }}))));
+  return sheet('therm', 'Savings Thermometer', [
+    head(`Savings Thermometer: ${money(GOAL)}`,
+      `For any ${money(GOAL)} challenge, like the Classic and Any Order pages in this paper. Each line is 5% of ` +
+      `${money(GOAL)} (${cents(GOAL / 20)}). Tap the START bulb with your first deposit, then tap up to your total ` +
+      `each week (part of a line is fine). Tap lower to erase.`),
+    h('div', {class:'blanks'},
+      blank("I'm saving for:", 'therm.for'), blank('Challenge:', 'therm.which'),
+      blank('Start date:', 'therm.start-date', {max:16}), blank('Goal date:', 'therm.end', {max:16})),
+    h('div', {class:'tgrid'}, thermometer(),
+      h('div', {class:'notes'},
+        tip('Milestones', `25% = ${cents(GOAL / 4)}: Great start!`, `50% = ${cents(GOAL / 2)}: Halfway there!`,
+          `75% = ${cents(GOAL * .75)}: Almost there!`, `100% = ${cents(GOAL)}: GOAL REACHED!`),
+        h('div', null, h('h3', {class:'h4', text:'Why this matters to me'}), lines(4, 'therm.why', 'Why this matters to me')),
+        h('div', null, h('h3', {class:'h4', text:'My reward when I reach it'}), lines(2, 'therm.reward', 'My reward')),
+        h('div', null, h('h3', {class:'h4', text:'The day I got there'}), days)))]);
+}
+
+function weekTable(from, to){
+  const rows = [];
+  for (let w = from; w <= to; w++){
+    const dateKey = `classic.date.${w}`, autoKey = `classic.auto.${w}`;
+    const date = ink(dateKey, {label:`Week ${w} date`, max:12, onInput:() => { delete S.f[autoKey]; }});
+    const done = checkbox(`classic.done.${w}`, `Week ${w}, $${w}, done`, on => {
+      if (on){
+        // today's date only for the next week in line, and not for a second week ticked on the same day
+        // (catching up from a printed sheet should not stamp every old week with today)
+        let inLine = true;
+        for (let k = 1; k < w; k++) if (!S.f[`classic.done.${k}`]){ inLine = false; break; }
+        const prevToday = w > 1 && S.f[`classic.date.${w - 1}`] === today();
+        if (!S.f[dateKey] && inLine && !prevToday){ S.f[dateKey] = today(); S.f[autoKey] = true; }
+      } else {
+        // un-ticking takes back a date written today; an older date stays, as it would in pencil
+        if (S.f[autoKey] && S.f[dateKey] === today()) delete S.f[dateKey];
+        delete S.f[autoKey];
+      }
+      FIELDS.get(dateKey)(S.f[dateKey]);
+    });
+    rows.push(h('div', {class:'tr'}, h('span', {class:'wk', text:String(w)}), date,
+      h('span', {class:'dep', text:money(w)}), h('span', {class:'tot', text:money(w * (w + 1) / 2)}), done));
+  }
+  return h('div', {class:'tbl'}, h('div', {class:'tr th'}, ['Week', 'Date', 'Deposit', 'Total', 'Done'].map(t => h('span', {text:t}))), rows);
+}
+function sheetClassic(){
+  return sheet('classic', 'Classic Challenge', [
+    head('Classic Challenge: $1 to $52', 'Week 1 save $1, week 2 save $2 ... week 52 save $52. The running total is ' +
+      'printed for you. Tap the box when the week is done (tap again to undo).'),
+    h('div', {class:'row'}, h('div', {style:'flex:1 1 220px;max-width:340px'}, blank('Started on:', 'classic.start', {max:16})),
+      h('span', {class:'big', text:'Total: $1,378'})),
+    h('div', {class:'split weeks', style:'margin-top:16px'}, weekTable(1, 26), weekTable(27, 52))]);
+}
+
+function sheetCoins(){
+  const [countRow, countOut] = autoBlank('Coins colored (of 52):', 'coins.count');
+  const [sumRow, sumOut] = autoBlank('Saved so far: $', 'coins.sum');
+  const grid = h('div', {class:'coins'});
+  for (let a = 1; a <= 52; a++) grid.append(coin(a));
+  coinTotals = () => {
+    let n = 0, t = 0;
+    for (let a = 1; a <= 52; a++) if (S.f[`coins.c.${a}`]){ n++; t += a; }
+    countOut.textContent = n ? String(n) : '';
+    sumOut.textContent = n ? t.toLocaleString('en-US') : '';
+  };
+  return sheet('coins', 'Any Order Coins', [
+    head('Any Order Coins: $1 to $52', 'Each week, save any amount from $1 to $52 that fits your budget and tap that coin ' +
+      'to color it. Use each coin once. All 52 coins = $1,378.'),
+    h('div', {class:'blanks'}, blank('Started on:', 'coins.start', {max:16}), blank('Finished on:', 'coins.end', {max:16})),
+    grid,
+    h('div', {class:'blanks'}, countRow, sumRow),
+    h('div', {style:'margin-top:20px'}, tip('Tip', 'Tight week? Color a small coin. Payday or a bonus? Pick a big one. ' +
+      'Tapped the wrong coin? Tap it again to erase it.'))],
+    'For personal budgeting only. Not financial advice.');
+}
+
+const desk = document.getElementById('desk');
+const SHEETS = [sheetTherm(), sheetClassic(), sheetCoins()];
+desk.append(...SHEETS);
+const byId = id => document.getElementById('sheet-' + id);
+function refitAreas(){ AREAS.forEach(([el, n]) => fit(el, n)); }
+function paintAll(){ render(); coinTotals(); paintTherm(false); refitAreas(); }
+paintAll();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitAreas, () => {});
+let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(refitAreas, 150); });
+
+// ---------------- notes on the desk ----------------
+const note = document.getElementById('note'), nosave = document.getElementById('nosave');
+function warn(t){
+  nosave.textContent = t || "This browser isn't keeping this paper, so what you write will be gone when you close it. " +
+    'Open the link in Safari or Chrome, and not in a private window. The folder can also save a copy as a file.';
+  nosave.hidden = false;
+}
+if (!canStore()) warn();
+else if (frozen) warn('This paper was saved by a newer version of this page. Close this tab and open the link again.');
+note.hidden = !!S.note;
+note.addEventListener('click', () => {
+  S.note = true; changed(); persist();
+  if (REDUCED){ note.hidden = true; return; }
+  note.animate([{transform:'rotate(2.2deg)', opacity:1}, {transform:'translate(60px,-90px) rotate(24deg)', opacity:0}],
+    {duration:420, easing:'cubic-bezier(.5,0,.8,.4)', fill:'forwards'});
+  settle(note.getAnimations(), 420).then(() => { note.hidden = true; note.getAnimations().forEach(a => a.cancel()); });
+});
+
+// ---------------- pencils ----------------
+const tools = document.getElementById('tools'), fan = document.getElementById('fan'), tPencil = document.getElementById('t-pencil');
+function pencilSVG(){
+  return s('svg', {viewBox:'0 0 120 20', 'aria-hidden':'true'},
+    s('rect', {x:22, y:3, width:90, height:14, rx:1.5, style:'fill:var(--pc)'}),
+    s('rect', {x:22, y:3, width:90, height:4.5, fill:'#fff', opacity:'.22'}),
+    s('rect', {x:110, y:3, width:8, height:14, rx:2, fill:'#C9CFCA'}),
+    s('path', {d:'M22 3 5 10l17 7z', fill:'#EBD2A5'}),
+    s('path', {d:'M10.5 7.7 5 10l5.5 2.3z', style:'fill:var(--pc)'}));
+}
+function showPencil(){
+  tPencil.style.setProperty('--pc', pencil(S.pencil).c);
+  fan.querySelectorAll('.pencil').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === S.pencil ? 'true' : 'false'));
+}
+function openFan(byKeyboard){
+  hideAsk(); if (typeof closeMenu === 'function') closeMenu(false);
+  fan.hidden = false; tPencil.setAttribute('aria-expanded', 'true');
+  if (byKeyboard){ const p = fan.querySelector('[aria-pressed="true"]'); if (p) p.focus(); }
+}
+function closeFan(refocus){
+  if (fan.hidden) return;
+  fan.hidden = true; tPencil.setAttribute('aria-expanded', 'false');
+  if (refocus) tPencil.focus({preventScroll:true});
+}
+PENCILS.forEach(p => fan.append(h('button', {class:'pencil', type:'button', 'data-id':p.id, style:`--pc:${p.c}`,
+  'aria-label':`${p.name} pencil`, onclick:() => { S.pencil = p.id; showPencil(); closeFan(true); changed(); say(`${p.name} pencil`); }},
+  pencilSVG(), h('span', {text:p.name}))));
+tPencil.addEventListener('click', e => { e.stopPropagation(); fan.hidden ? openFan(e.detail === 0) : closeFan(false); });
+tools.addEventListener('keydown', e => { if (e.key === 'Escape' && !fan.hidden){ e.preventDefault(); closeFan(true); } });
+tools.addEventListener('focusout', () => setTimeout(() => { if (!tools.contains(document.activeElement) && document.activeElement !== document.body) closeFan(false); }, 0));
+document.addEventListener('click', e => { if (!fan.hidden && !tools.contains(e.target)) closeFan(false); });
+showPencil();
+
+// on phones the tray steps aside while the keyboard is up, so it never covers the line under the pen;
+// closing the keyboard (also with Android's back gesture) puts the pen down and brings the tray back
+const vv = window.visualViewport;
+let vvTall = vv ? vv.height * vv.scale : 0, kbSeen = false;
+document.addEventListener('focusin', () => { if (COARSE && writing()){ tools.classList.add('away'); closeFan(false); } });
+document.addEventListener('focusout', () => setTimeout(() => { if (!writing()){ tools.classList.remove('away'); kbSeen = false; } }, 60));
+if (vv) vv.addEventListener('resize', () => {
+  const hh = vv.height * vv.scale;
+  if (!writing()){ vvTall = hh; return; }
+  if (hh < vvTall - 150) kbSeen = true;
+  else if (kbSeen && hh > vvTall - 60){ kbSeen = false; document.activeElement.blur(); }
+});
+
+// ---------------- which sheet is in front of the reader, and where they left off ----------------
+function currentSheet(){
+  let best = SHEETS[0], most = -1;
+  for (const sh of SHEETS){
+    const r = sh.getBoundingClientRect();
+    const seen = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+    if (seen > most){ most = seen; best = sh; }
+  }
+  return best;
+}
+function savePlace(){
+  try {
+    const sh = currentSheet();
+    localStorage.setItem(PKEY, JSON.stringify({id:sh.dataset.sheet, off:Math.round(-sh.getBoundingClientRect().top)}));
+  } catch (e) {}
+}
+function restorePlace(){
+  try {
+    const p = JSON.parse(localStorage.getItem(PKEY) || 'null'), sh = p && byId(p.id);
+    if (sh) scrollTo(0, sh.getBoundingClientRect().top + scrollY + Math.max(0, p.off | 0));
+  } catch (e) {}
+}
+try { history.scrollRestoration = 'manual'; } catch (e) {}
+let placeT, placed = false;
+function placeOnce(){ if (!placed){ placed = true; restorePlace(); } }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { refitAreas(); placeOnce(); }, placeOnce);
+setTimeout(placeOnce, 700);
+addEventListener('scroll', () => { clearTimeout(placeT); placeT = setTimeout(savePlace, 800); }, {passive:true});
+
+// ---------------- keeping tabs in step ----------------
+// only a tab that changed something writes; a tab that sat in the background re-reads before it shows
+function resync(){
+  if (dirty || busy || armed) return;
+  let raw; try { raw = localStorage.getItem(KEY); } catch (e) { return; }
+  if (raw === raw0) return;
+  S = load(); paintAll(); showPencil(); note.hidden = !!S.note; showTrash();
+}
+addEventListener('storage', e => { if (e.key === KEY) resync(); });
+addEventListener('pageshow', e => { if (e.persisted) resync(); });
+addEventListener('pagehide', () => { if (dirty) persist(); savePlace(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden'){ if (dirty) persist(); savePlace(); } else resync();
+});
+
+// ---------------- save: stamp ----------------
+const fx = document.getElementById('fx');
+document.getElementById('t-save').addEventListener('click', () => {
+  dirty = true;
+  const ok = persist();
+  if (!REDUCED) document.getElementById('stampBody').animate(
+    [{transform:'none'}, {transform:'translateY(5px) scale(.94)'}, {transform:'none'}],
+    {duration:260, easing:'ease-out'});
+  const r = currentSheet().getBoundingClientRect();
+  const m = h('div', {class:'mark' + (ok ? '' : ' bad'), 'aria-hidden':'true'},
+    ok ? 'SAVED' : 'NOT SAVED', h('span', {text:ok ? today() : 'this browser blocks saving'}));
+  m.style.top = Math.max(r.top, 0) + 6 + 'px';
+  m.style.right = Math.max(innerWidth - Math.min(r.right, innerWidth), 0) + 14 + 'px';
+  fx.append(m);
+  say(ok ? `Saved, ${today()}` : 'Not saved. This browser blocks saving.');
+  const a = REDUCED
+    ? m.animate([{opacity:.86}, {opacity:.86, offset:.8}, {opacity:0}], {duration:2200})
+    : m.animate([{opacity:0, transform:'scale(1.7) rotate(-15deg)'}, {opacity:.9, transform:'scale(.95) rotate(-9deg)', offset:.14},
+        {opacity:.86, transform:'scale(1) rotate(-9deg)', offset:.22}, {opacity:.86, transform:'scale(1) rotate(-9deg)', offset:.82},
+        {opacity:0, transform:'scale(1) rotate(-9deg)'}], {duration:2400, easing:'ease-out'});
+  settle(a, 2400).then(() => m.remove());
+});
+
+// ---------------- print: every sheet on its own page ----------------
+// (a page shown inside another page, like a preview frame, often cannot open the print dialog: no button there)
+const tPrint = document.getElementById('t-print');
+let framed = true;
+try { framed = window.self !== window.top; } catch (e) {}
+if (/[?&]tools=1(&|$)/.test(location.search)) framed = false;   // listing screenshots taken in a test frame
+tPrint.hidden = framed || typeof window.print !== 'function';
+function readyToPrint(){ closeFan(false); disarm(); if (writing()) document.activeElement.blur(); refitAreas(); }
+addEventListener('beforeprint', readyToPrint);
+tPrint.addEventListener('click', () => { readyToPrint(); try { window.print(); } catch (e) {} });
+
+// ---------------- folder: keep a copy of the paper as a file, and open it again ----------------
+// the copy is the buyer's own file (Files app, Downloads ...), so a new phone or cleared browser data loses nothing
+const COPY_KIND = 'solenhq-paper', COPY_PAPER = '52-week-savings';
+const tFolder = document.getElementById('t-folder'), menu = document.getElementById('menu'), copyFile = document.getElementById('copyFile');
+tFolder.hidden = framed;
+const shortDate = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+function copyText(){
+  return JSON.stringify({kind:COPY_KIND, paper:COPY_PAPER, v:1, savedAt:new Date().toISOString(),
+    data:{v:1, f:S.f, pencil:S.pencil}}, null, 1);
+}
+function fromCopy(text){
+  let o;
+  try { o = JSON.parse(text); } catch (e) { throw new Error('This file is not a copy of this paper.'); }
+  if (!o || o.kind !== COPY_KIND || o.paper !== COPY_PAPER || !o.data || typeof o.data.f !== 'object' || !o.data.f || Array.isArray(o.data.f))
+    throw new Error('This file is not a copy of this paper.');
+  if (o.v > 1 || o.data.v > 1) throw new Error('This copy was made by a newer version of this paper. Open the newest link and try again.');
+  const when = new Date(o.savedAt);
+  return {state:migrate({v:1, f:o.data.f, pencil:pencil(o.data.pencil).id, note:true, trash:null}),
+          when:isNaN(when) ? 'an earlier day' : shortDate(when)};
+}
+function closeMenu(refocus){
+  if (menu.hidden) return;
+  menu.hidden = true; tFolder.setAttribute('aria-expanded', 'false');
+  if (refocus) tFolder.focus({preventScroll:true});
+}
+function opt(label, hint, onclick){ return h('button', {class:'opt', type:'button', onclick}, label, hint ? h('small', {text:hint}) : null); }
+function openMenu(byKeyboard){
+  closeFan(false); disarm(); hideAsk();
+  menu.replaceChildren(
+    opt('Save a copy', 'Keep this paper as a file on your phone or computer', saveCopy),
+    opt('Open a copy', 'Bring back a paper from a saved file', () => copyFile.click()));
+  menu.hidden = false; tFolder.setAttribute('aria-expanded', 'true');
+  if (byKeyboard) menu.querySelector('.opt').focus();
+}
+async function saveCopy(){
+  const name = `52-Week Savings Paper ${new Date().toISOString().slice(0, 10)}.json`;
+  const text = copyText();
+  closeMenu(true);
+  let file = null;
+  try { file = new File([text], name, {type:'application/json'}); } catch (e) {}
+  // on phones the share sheet offers "Save to Files"; computers get a normal download
+  if (COARSE && file && navigator.canShare && navigator.canShare({files:[file]})){
+    try { await navigator.share({files:[file], title:'52-Week Savings Paper'}); showAsk('Copy saved', 1800); say('Copy saved'); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([text], {type:'application/json'}));
+    const a = h('a', {href:url, download:name});
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showAsk('Copy saved to your downloads', 2400); say('Copy saved to your downloads');
+  } catch (e) { showAsk("This browser can't save files", 2600); say("This browser can't save files"); }
+}
+let pendingCopy = null;
+copyFile.addEventListener('change', async () => {
+  const f = copyFile.files && copyFile.files[0];
+  copyFile.value = '';
+  if (!f) return;
+  let got;
+  try { got = fromCopy(await f.text()); }
+  catch (e) { closeMenu(false); showAsk(e.message.length > 46 ? "That file isn't a copy of this paper" : e.message, 3000); say(e.message); return; }
+  pendingCopy = got.state;
+  // replacing the pages is a big step: ask first, inside the tray, like a note
+  menu.replaceChildren(h('p', {text:`Replace what's on these pages with the copy from ${got.when}?`}),
+    opt('Replace my pages', null, useCopy), opt('Keep my pages', null, () => { pendingCopy = null; closeMenu(true); }));
+  menu.hidden = false; tFolder.setAttribute('aria-expanded', 'true');
+  menu.querySelector('.opt').focus({preventScroll:true});
+});
+function useCopy(){
+  if (!pendingCopy || busy) return;
+  S = pendingCopy; pendingCopy = null;
+  dirty = true; persist();
+  paintAll(); showPencil(); note.hidden = true; showTrash();
+  closeMenu(true);
+  showAsk('Your copy is back', 2200); say('Your copy is back on these pages');
+}
+tFolder.addEventListener('click', e => { e.stopPropagation(); menu.hidden ? openMenu(e.detail === 0) : closeMenu(false); });
+tools.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden){ e.preventDefault(); pendingCopy = null; closeMenu(true); } });
+document.addEventListener('click', e => { if (!menu.hidden && !tools.contains(e.target)){ pendingCopy = null; closeMenu(false); } });
+
+// ---------------- toss: lift, crumple, throw, take back ----------------
+const basket = document.getElementById('t-toss'), oops = document.getElementById('oops'), ask = document.getElementById('ask');
+let busy = false, armed = null, actx = null, uid = 0, askT;
+function showAsk(t, ms){ clearTimeout(askT); ask.textContent = t; ask.hidden = false; oops.hidden = true; if (ms) askT = setTimeout(hideAsk, ms); }
+function hideAsk(){ clearTimeout(askT); ask.hidden = true; showTrash(); }
+function showTrash(){
+  const t = S.trash = validTrash(S.trash);
+  basket.classList.toggle('full', !!t);
+  oops.hidden = !t || !ask.hidden;
+}
+const sheetKeys = id => Object.keys(S.f).filter(k => k.startsWith(id + '.'));
+function wiggle(){
+  if (!REDUCED) basket.animate([{transform:'rotate(0)'}, {transform:'rotate(-8deg)'}, {transform:'rotate(6deg)'}, {transform:'rotate(-2deg)'}, {transform:'rotate(0)'}],
+    {duration:420, easing:'ease-out'});
+}
+
+function crinkle(){
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const sr = actx.sampleRate, len = Math.floor(sr * .85), buf = actx.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    let i = 0;
+    while (i < len){
+      const burst = Math.floor((Math.random() * .012 + .002) * sr), amp = (Math.random() * .8 + .2) * Math.sin(Math.PI * i / len);
+      for (let j = 0; j < burst && i + j < len; j++) d[i + j] = (Math.random() * 2 - 1) * amp * Math.exp(-j / (burst * .3));
+      i += burst + Math.floor(Math.random() * .028 * sr);
+    }
+    const src = actx.createBufferSource(), hp = actx.createBiquadFilter(), g = actx.createGain();
+    src.buffer = buf; hp.type = 'highpass'; hp.frequency.value = 1400; g.gain.value = .2;
+    src.connect(hp).connect(g).connect(actx.destination); src.start();
+  } catch (e) {}
+}
+
+function ballSVG(tint){
+  const r = Math.random, n = 15, P = [], I = [], id = 'bs' + (++uid);
+  for (let i = 0; i < n; i++){
+    const a = (i + (r() - .5) * .5) / n * Math.PI * 2, rr = 41 + r() * 7 - (i % 2) * 3.5;
+    P.push([50 + Math.cos(a) * rr, 50 + Math.sin(a) * rr]);
+  }
+  for (let k = 0; k < 6; k++){ const a = r() * Math.PI * 2, rr = r() * 24; I.push([50 + Math.cos(a) * rr, 50 + Math.sin(a) * rr]); }
+  const pt = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+  const near = q => I.reduce((b, p) => Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(b[0] - q[0], b[1] - q[1]) ? p : b, I[0]);
+  const shade = () => ['#FFFEFA', '#F7F5ED', '#EDEADF', '#E2DED2', '#D7D2C5'][(r() * 5) | 0];
+  let out = `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="${id}" cx="36%" cy="30%" r="78%">` +
+    `<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#2A2A20" stop-opacity=".3"/></radialGradient></defs>` +
+    `<polygon points="${P.map(pt).join(' ')}" fill="#FBFAF4" stroke="#C9C4B6" stroke-width="1"/>`;
+  for (let i = 0; i < n; i++){
+    const a = P[i], b = P[(i + 1) % n];
+    out += `<polygon points="${pt(a)} ${pt(b)} ${pt(near([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]))}" fill="${shade()}"/>`;
+  }
+  for (let k = 0; k < 5; k++) out += `<polygon points="${pt(I[k])} ${pt(I[(k + 1) % 6])} ${pt(I[(k + 3) % 6])}" fill="${shade()}" opacity=".8"/>`;
+  for (let k = 0; k < 10; k++){
+    const a = I[(r() * 6) | 0], b = P[(r() * n) | 0];
+    out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="#463F2E" stroke-opacity=".24" stroke-width=".8"/>`;
+  }
+  const inks = ['#2D6A4F', '#98AAA0'].concat(tint || []);
+  for (let k = 0; k < 6; k++){
+    const a = I[(r() * 6) | 0], ang = r() * Math.PI, len = 6 + r() * 10, c = inks[k % inks.length];
+    out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${(a[0] + Math.cos(ang) * len).toFixed(1)}" y2="${(a[1] + Math.sin(ang) * len).toFixed(1)}" ` +
+      `stroke="${c}" stroke-width="${k < 2 ? 1.2 : 2.2}" opacity=".6" stroke-linecap="round"/>`;
+  }
+  return out + `<polygon points="${P.map(pt).join(' ')}" fill="url(#${id})"/></svg>`;
+}
+
+function creases(w, hh){
+  const r = Math.random;
+  let out = `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}" aria-hidden="true">`;
+  for (let k = 0; k < 16; k++){
+    const x = r() * w, y = r() * hh, a = r() * Math.PI * 2, l = (.25 + r() * .4) * Math.max(w, hh);
+    const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l, x3 = x + Math.cos(a + 1.1) * l * .7, y3 = y + Math.sin(a + 1.1) * l * .7;
+    out += `<polygon points="${x},${y} ${x2},${y2} ${x3},${y3}" fill="${k % 2 ? '#ffffff' : '#14231B'}" opacity="${k % 2 ? .42 : .1}"/>`;
+  }
+  for (let k = 0; k < 22; k++){
+    const x = r() * w, y = r() * hh, a = r() * Math.PI, l = (.3 + r() * .7) * Math.max(w, hh);
+    const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l;
+    out += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#14231B" stroke-opacity=".24" stroke-width="1.3"/>` +
+      `<line x1="${x + 1.3}" y1="${y + 1.3}" x2="${x2 + 1.3}" y2="${y2 + 1.3}" stroke="#ffffff" stroke-opacity=".6" stroke-width="1.1"/>`;
+  }
+  return out + `<rect width="100%" height="100%" fill="url(#crShade)"/></svg>`;
+}
+
+// geometry of the visible part of a sheet, and the keyframes that fold it into a ball
+// (transform and clip-path run as two effects, so the transform can stay on the compositor)
+function fold(sheetEl){
+  const r = sheetEl.getBoundingClientRect();
+  const y0 = Math.max(0, -r.top), y1 = Math.min(r.height, innerHeight - r.top);
+  const w = r.width, hh = Math.max(40, y1 - y0), cx = w / 2, cy = y0 + hh / 2;
+  const N = 32, per = 2 * (w + hh), P = [];
+  for (let i = 0; i < N; i++){
+    let d = per * i / N, x, y;
+    if (d < w){ x = d; y = y0; }
+    else if ((d -= w) < hh){ x = w; y = y0 + d; }
+    else if ((d -= hh) < w){ x = w - d; y = y0 + hh; }
+    else { d -= w; x = 0; y = y0 + hh - d; }
+    P.push([x, y]);
+  }
+  const R = Math.min(w, hh) * .4, rnd = Math.random;
+  // a lumpy round outline (a few dents), not a star
+  const end = P.map(([x, y], i) => {
+    const a = Math.atan2(y - cy, x - cx), rr = R * (i % 5 === 0 ? .78 : .9 + rnd() * .12);
+    return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr];
+  });
+  // halfway: edges pulled in unevenly, like a sheet squeezed from both sides
+  const mid = P.map(([x, y], i) => {
+    const t = .42 + rnd() * .22;
+    return [x + (end[i][0] - x) * t + (rnd() - .5) * w * .12, y + (end[i][1] - y) * t + (rnd() - .5) * hh * .09];
+  });
+  const poly = pts => 'polygon(' + pts.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(',') + ')';
+  const BALL = Math.round(Math.max(70, Math.min(104, w * .26)));
+  const sc = BALL / (2 * R * .93), rot = (rnd() < .5 ? -1 : 1) * (16 + rnd() * 16), tilt = rnd() < .5 ? -1 : 1;
+  const tf = (o, ty, sz, rx, ry, rz) => ({offset:o,
+    transform:`perspective(1100px) translateY(${ty}px) scale(${sz.toFixed(3)}) rotateX(${rx}deg) rotateY(${ry}deg) rotate(${rz.toFixed(1)}deg)`});
+  const cf = (o, pts) => ({offset:o, clipPath:poly(pts), webkitClipPath:poly(pts)});
+  return {
+    w, y0, hh, cx, cy, BALL, center:[r.left + cx, r.top + cy],
+    tf:[tf(0, 0, 1, 0, 0, 0), tf(.16, -8, .985, 2, -2 * tilt, -.6), tf(.55, -4, .45 + sc * .55, 16, -20 * tilt, rot * .35),
+      tf(1, 0, sc, 8, -10 * tilt, rot)],
+    cf:[cf(0, P), cf(.16, P), cf(.55, mid), cf(1, end)]
+  };
+}
+// wait for animations, but never longer than their length plus a margin: a throttled or background tab
+// must not leave a page half thrown away
+const settle = (anims, ms) => Promise.race([Promise.all([].concat(anims).map(a => a.finished.catch(() => {}))),
+  new Promise(r => setTimeout(r, ms + 350))]);
+const reverse = frames => frames.slice().reverse().map(f => ({...f, offset:1 - f.offset}));
+function addCreases(sheetEl, g){
+  const c = h('div', {class:'creases'});
+  c.style.top = g.y0 + 'px'; c.style.width = g.w + 'px'; c.style.height = g.hh + 'px';
+  c.innerHTML = creases(Math.round(g.w), Math.round(g.hh));
+  sheetEl.append(c);
+  return c;
+}
+function makeBall(D, at, tint){
+  const b = h('div', {class:'ball'});
+  b.innerHTML = ballSVG(tint);
+  b.style.width = b.style.height = D + 'px';
+  b.style.left = (at[0] - D / 2) + 'px'; b.style.top = (at[1] - D / 2) + 'px';
+  fx.append(b);
+  return b;
+}
+function arc(from, to, spin){
+  const H = Math.max(90, Math.abs(to[0] - from[0]) * .35 + 70), out = [];
+  for (let i = 0; i <= 14; i++){
+    const t = i / 14, x = (to[0] - from[0]) * t, y = (to[1] - from[1]) * t - H * 4 * t * (1 - t);
+    out.push({transform:`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${(t * spin).toFixed(0)}deg) scale(${(1 - .45 * t).toFixed(3)})`});
+  }
+  return out;
+}
+function binMouth(){ const b = basket.querySelector('svg').getBoundingClientRect(); return [b.left + b.width * .5, b.top + b.height * .28]; }
+const tintOf = saved => [...new Set(Object.values(saved).filter(v => typeof v === 'string' && PENCILS.some(p => p.id === v)))].slice(0, 2).map(id => pencil(id).c);
+
+// first tap lifts the page and asks; a second tap on the basket within 4 s throws it away
+function arm(sh){
+  disarm();
+  closeFan(false);
+  if (!sheetKeys(sh.dataset.sheet).length){ wiggle(); showAsk('This page is already blank', 1800); say('This page is already blank'); return; }
+  const lift = REDUCED ? null : sh.animate([{transform:'none'}, {transform:'translateY(-6px) rotate(-.35deg)'}],
+    {duration:220, easing:'ease-out', fill:'forwards'});
+  sh.classList.add('busy');
+  armed = {sheet:sh, lift, y:scrollY, t:setTimeout(disarm, 4000)};
+  showAsk('Toss this page? Tap the basket again');
+  say(`Toss the ${sh.dataset.label} page? Press the basket again to throw it away.`);
+}
+function disarm(){
+  if (!armed) return;
+  const a = armed; armed = null; clearTimeout(a.t);
+  if (a.lift) a.lift.cancel();
+  if (!busy) a.sheet.classList.remove('busy');
+  hideAsk();
+}
+document.addEventListener('pointerdown', e => { if (armed && !basket.contains(e.target)) disarm(); }, true);
+addEventListener('scroll', () => { if (armed && Math.abs(scrollY - armed.y) > 60) disarm(); }, {passive:true});
+basket.addEventListener('click', () => {
+  if (busy) return;
+  const sh = currentSheet();
+  if (armed && armed.sheet === sh){ const a = armed; armed = null; clearTimeout(a.t); hideAsk(); toss(sh, a.lift); }
+  else arm(sh);
+});
+
+async function toss(sh, lift){
+  busy = true;
+  const id = sh.dataset.sheet, label = sh.dataset.label;
+  if (document.activeElement && sh.contains(document.activeElement)) document.activeElement.blur();
+  const saved = {};
+  sheetKeys(id).forEach(k => { saved[k] = S.f[k]; delete S.f[k]; });
+  S.trash = {id, saved, at:Date.now()};       // kept until she writes on that page again, tosses another, or a day passes
+  dirty = true; persist();
+  sh.inert = true;
+  let ball = null, c = null;
+  try {
+    try { navigator.vibrate && navigator.vibrate([10, 40, 10]); } catch (e) {}
+    if (REDUCED){
+      await settle(sh.animate([{opacity:1}, {opacity:0}], {duration:200, fill:'forwards'}), 200);
+      paintAll();
+      sh.getAnimations().forEach(a => a.cancel());
+      await settle(sh.animate([{opacity:0}, {opacity:1}], {duration:200}), 200);
+    } else {
+      crinkle();
+      const g = fold(sh);
+      sh.classList.add('busy');
+      sh.style.transformOrigin = `${g.cx}px ${g.cy}px`;
+      c = addCreases(sh, g);
+      c.animate([{opacity:0}, {opacity:0, offset:.16}, {opacity:.9, offset:.55}, {opacity:1}], {duration:880, fill:'forwards'});
+      const t1 = sh.animate(g.tf, {duration:880, easing:'cubic-bezier(.45,0,.35,1)', fill:'forwards'});
+      const t2 = sh.animate(g.cf, {duration:880, easing:'cubic-bezier(.45,0,.35,1)', fill:'forwards'});
+      if (lift) lift.cancel();
+      // the ball fades in over the last moments of the squeeze, so the page turns into it instead of swapping
+      ball = makeBall(g.BALL, g.center, tintOf(saved));
+      ball.animate([{opacity:0, transform:'scale(.9)'}, {opacity:0, transform:'scale(.9)', offset:.74}, {opacity:1, transform:'scale(1)'}],
+        {duration:880, easing:'cubic-bezier(.45,0,.35,1)'});
+      await settle([t1, t2], 880);
+      sh.style.visibility = 'hidden';
+      sh.getAnimations().forEach(a => a.cancel());
+      c.remove(); c = null; sh.classList.remove('busy');
+      const to = binMouth(), fr = arc(g.center, to, 540);
+      const last = fr[fr.length - 1].transform;
+      fr.push({transform:last.replace(/translate\(([^,]+),([^)]+)\)/, (m, x, y) => `translate(${x},${(parseFloat(y) + 16).toFixed(1)}px)`).replace(/scale\([^)]+\)/, 'scale(.42)'), opacity:0});
+      fr.forEach((f, i) => { f.offset = i < fr.length - 1 ? i / (fr.length - 1) * .9 : 1; });
+      await settle(ball.animate(fr, {duration:720, easing:'linear', fill:'forwards'}), 720);
+      ball.remove(); ball = null;
+      showTrash(); wiggle();
+      paintAll();
+      sh.style.visibility = '';
+      await settle(sh.animate([{opacity:0, transform:'translateY(-22px) scale(.985)'}, {opacity:1, transform:'none'}],
+        {duration:420, easing:'cubic-bezier(.2,.7,.2,1)'}), 420);
+    }
+  } finally {
+    if (ball) ball.remove();
+    if (c) c.remove();
+    sh.getAnimations().forEach(a => a.cancel());
+    sh.style.visibility = ''; sh.style.transformOrigin = '';
+    sh.classList.remove('busy'); sh.inert = false;
+    paintAll(); showTrash();
+    busy = false;
+  }
+  say(`${label} page thrown away. Take it back is above the basket.`);
+}
+
+async function takeBack(){
+  if (busy || armed || !S.trash) return;
+  busy = true;
+  const t = S.trash, sh = byId(t.id), hadFocus = document.activeElement === oops;
+  S.trash = null; showTrash();
+  sheetKeys(t.id).forEach(k => delete S.f[k]);
+  Object.assign(S.f, t.saved);
+  dirty = true; persist();
+  sh.inert = true;
+  let ball = null, c = null;
+  try {
+    const r0 = sh.getBoundingClientRect();
+    if (r0.bottom < 80 || r0.top > innerHeight - 80) sh.scrollIntoView({block:'start'});
+    if (REDUCED){ paintAll(); }
+    else {
+      await settle(sh.animate([{opacity:1}, {opacity:0}], {duration:160, fill:'forwards'}), 160);
+      sh.style.visibility = 'hidden';
+      sh.getAnimations().forEach(a => a.cancel());
+      paintAll();
+      const g = fold(sh), from = binMouth();
+      ball = makeBall(g.BALL, from, tintOf(t.saved));
+      // fly from the basket back to the middle of the page, growing as it comes closer
+      const back = arc(from, g.center, -540).map((f, i, a) => ({transform:f.transform.replace(/scale\([^)]+\)/, `scale(${(.55 + .45 * i / (a.length - 1)).toFixed(3)})`)}));
+      await settle(ball.animate(back, {duration:600, easing:'linear', fill:'forwards'}), 600);
+      ball.remove(); ball = null;
+      sh.classList.add('busy');
+      sh.style.transformOrigin = `${g.cx}px ${g.cy}px`;
+      sh.style.visibility = '';
+      c = addCreases(sh, g);
+      c.animate([{opacity:1}, {opacity:.9, offset:.45}, {opacity:0, offset:.84}, {opacity:0}], {duration:820, fill:'forwards'});
+      const t1 = sh.animate(reverse(g.tf), {duration:820, easing:'cubic-bezier(.45,0,.35,1)'});
+      const t2 = sh.animate(reverse(g.cf), {duration:820, easing:'cubic-bezier(.45,0,.35,1)'});
+      await settle([t1, t2], 820);
+    }
+  } finally {
+    if (ball) ball.remove();
+    if (c) c.remove();
+    sh.getAnimations().forEach(a => a.cancel());
+    sh.style.visibility = ''; sh.style.transformOrigin = '';
+    sh.classList.remove('busy'); sh.inert = false;
+    paintAll();
+    busy = false;
+  }
+  say(`${sh.dataset.label} page is back.`);
+  if (hadFocus || document.activeElement === document.body) basket.focus({preventScroll:true});
+}
+oops.addEventListener('click', takeBack);
+showTrash();
+})();
+</script>
+
+</body>
+</html>
