@@ -1,484 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOLEN — A living workspace born from your intent</title>
-  <meta name="description" content="SOLEN turns your ideas, goals, and projects into a living personal workspace. It does not start with dashboards. It starts with your intention.">
-  
-  <!-- Open Graph -->
-  <meta property="og:title" content="SOLEN — A living workspace born from your intent">
-  <meta property="og:description" content="SOLEN turns your ideas into a living workspace. No dashboards. No templates. Your workspace grows from what you need.">
-  <meta property="og:image" content="./og-image.png">
-  <meta property="og:url" content="https://solenhq.github.io">
-  <meta property="og:type" content="website">
-  
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SOLEN">
-  <meta name="twitter:description" content="A living workspace born from your intent.">
-  <meta name="twitter:image" content="./twitter-card.png">
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
-  <link rel="shortcut icon" href="./favicon.ico">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    :root {
-      --bg: #0F1115;
-      --surface: #1A1A1A;
-      --amber: #F59E0B;
-      --amber-dim: rgba(245, 158, 11, 0.15);
-      --text: #e4e4e7;
-      --text-secondary: #a1a1aa;
-      --text-muted: #52525b;
-      --max-width: 680px;
-    }
-    
-    html { scroll-behavior: smooth; }
-    
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    
-    /* ── Section ── */
-    section {
-      padding: 5rem 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .inner {
-      width: 100%;
-      max-width: var(--max-width);
-    }
-    
-    /* ── Hero ── */
-    .hero {
-      min-height: 100vh;
-      justify-content: center;
-      text-align: center;
-      position: relative;
-    }
-    
-    .hero .inner {
-      animation: riseIn 1.2s ease-out both;
-    }
-    
-    @keyframes riseIn {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .mark svg { width: 72px; height: 72px; }
-    
-    .wordmark {
-      font-size: clamp(28px, 5vw, 40px);
-      font-weight: 200;
-      letter-spacing: 0.3em;
-      margin: 2rem 0 1rem;
-    }
-    
-    .hero-line {
-      width: 40px; height: 1px;
-      background: var(--amber);
-      margin: 0 auto 2rem;
-    }
-    
-    .hero-tagline {
-      font-size: clamp(16px, 2.5vw, 19px);
-      font-weight: 300;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 3rem;
-    }
-    
-    .hero-buttons {
-      display: flex; gap: 1rem;
-      justify-content: center; flex-wrap: wrap;
-    }
-    
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.75rem;
-      font-size: 14px; font-weight: 500;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: all 0.25s;
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-    }
-    
-    .btn-primary {
-      background: var(--amber);
-      color: var(--bg);
-    }
-    .btn-primary:hover { background: #e5900a; transform: translateY(-1px); }
-    
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
-    
-    .scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: bob 2s ease-in-out infinite;
-    }
-    
-    .scroll-hint span {
-      display: block; width: 1px; height: 40px;
-      background: linear-gradient(to bottom, var(--amber), transparent);
-    }
-    
-    @keyframes bob {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(8px); }
-    }
-    
-    /* ── Section Headers ── */
-    .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 1.5rem;
-    }
-    
-    .section-title {
-      font-size: clamp(22px, 3.5vw, 28px);
-      font-weight: 300;
-      letter-spacing: 0.02em;
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
-    
-    .section-text {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.8;
-    }
-    
-    /* ── How It Works ── */
-    .steps {
-      display: flex; flex-direction: column; gap: 1.5rem;
-      margin-top: 2rem;
-    }
-    
-    .step {
-      display: flex; gap: 1.25rem;
-      padding: 1.5rem;
-      background: var(--surface);
-      border-radius: 10px;
-      transition: border-color 0.3s;
-      border: 1px solid rgba(255,255,255,0.04);
-    }
-    
-    .step-num {
-      font-size: 12px; font-weight: 700;
-      color: var(--amber);
-      min-width: 28px; height: 28px;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--amber-dim);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    
-    .step-content h4 {
-      font-size: 15px; font-weight: 500;
-      margin-bottom: 0.25rem;
-    }
-    
-    .step-content p {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-    
-    /* ── Who It's For ── */
-    .audience {
-      display: flex; flex-wrap: wrap; gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-    
-    .audience-tag {
-      padding: 0.5rem 1rem;
-      font-size: 13px; font-weight: 400;
-      color: var(--text-secondary);
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 100px;
-    }
-    
-    /* ── Status ── */
-    .status-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    
-    .status-card {
-      padding: 1.25rem;
-      background: var(--surface);
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.04);
-    }
-    
-    .status-card .label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
-    
-    .status-card .value {
-      font-size: 14px;
-      font-weight: 500;
-    }
-    
-    .status-card .value.done { color: #22c55e; }
-    .status-card .value.progress { color: var(--amber); }
-    
-    /* ── Follow ── */
-    .follow-links {
-      display: flex; flex-wrap: wrap; gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    
-    .follow-link {
-      display: flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 8px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 14px;
-      transition: all 0.25s;
-    }
-    
-    .follow-link:hover {
-      border-color: var(--amber);
-      color: var(--amber);
-      transform: translateY(-1px);
-    }
-    
-    .follow-link svg { width: 18px; height: 18px; opacity: 0.7; }
-    
-    /* ── Footer ── */
-    footer {
-      padding: 4rem 2rem 3rem;
-      text-align: center;
-    }
-    
-    footer .foot-mark svg { width: 28px; height: 28px; opacity: 0.5; }
-    
-    footer p {
-      margin-top: 1rem;
-      font-size: 13px;
-      color: var(--text-muted);
-      letter-spacing: 0.03em;
-    }
-    
-    /* ── Divider ── */
-    .divider {
-      width: 60px; height: 1px;
-      background: rgba(255,255,255,0.06);
-      margin: 0 auto;
-    }
-    
-    /* ── Responsive ── */
-    @media (max-width: 480px) {
-      section { padding: 3.5rem 1.5rem; }
-      .hero { min-height: 90vh; }
-      .hero-buttons { flex-direction: column; align-items: center; }
-      .btn { width: 100%; justify-content: center; }
-      .status-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOLENHQ · Printable money trackers you color in</title>
+<meta name="description" content="Undated printable coloring trackers for paying off debt, weekly savings challenges, sinking funds and self-employed records. Instant download on Etsy, US Letter and A4.">
+<link rel="canonical" href="https://solenhq.github.io/">
+
+<meta property="og:title" content="SOLENHQ · Printable money trackers you color in">
+<meta property="og:description" content="Debt payoff, savings and sinking fund trackers. Print at home, color as you go.">
+<meta property="og:image" content="https://solenhq.github.io/og-image.png">
+<meta property="og:url" content="https://solenhq.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SOLENHQ">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SOLENHQ logo beside three example tracker pages colored in green.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://solenhq.github.io/og-image.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="theme-color" content="#F4F8F5">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Arimo:ital,wght@0,400;0,700;1,400&family=Caveat:wght@600&display=swap">
+<style>
+/* Layout: one calm column on mint paper; product cards in a grid; the shop's printables carry the color. */
+:root{
+  --bg:#F4F8F5; --bg-2:#E6F0E9; --card:#FFFFFF; --line:#D3DFD7;
+  --deep:#1B4332; --accent:#2D6A4F; --ink:#1F2D27; --muted:#55655D; --amber:#8A5600; --amber-soft:#FCEFD2;
+  --charcoal:#1A1A1A; --hand:#24406B;
+  --f-head:"Barlow","Bahnschrift","Segoe UI",system-ui,sans-serif;
+  --f-body:"Arimo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-hand:"Caveat","Segoe Print","Bradley Hand",cursive;
+  --max:1080px;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--accent)}
+a:focus-visible,.btn:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.wrap{max-width:var(--max);margin:0 auto;
+  padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-head);color:var(--deep);margin:0;text-wrap:balance}
+.eyebrow{font:600 13px/1 var(--f-head);letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin:0 0 14px}
+
+/* header */
+.top{position:sticky;top:0;z-index:10;background:rgba(244,248,245,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px}
+.top img{width:150px}
+.nav{display:flex;align-items:center;gap:22px}
+.nav a{font:600 15px/1 var(--f-head);color:var(--ink);text-decoration:none}
+.nav a:not(.btn):hover{color:var(--accent)}
+.nav .hide-sm{display:inline}
+@media (max-width:640px){.nav .hide-sm{display:none}}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font:700 16px/1 var(--f-head);
+  text-decoration:none;border:2px solid var(--accent);transition:background .15s,color .15s}
+.btn.solid{background:var(--accent);color:#fff}
+.btn.solid:hover{background:var(--deep);border-color:var(--deep)}
+.btn.line{color:var(--accent);background:transparent}
+.btn.line:hover{background:var(--bg-2)}
+.btn.small{padding:9px 16px;font-size:15px}
+
+/* hero */
+.hero{padding:56px 0 40px}
+.hero .wrap{display:grid;grid-template-columns:1fr;gap:36px;align-items:center}
+@media (min-width:860px){.hero .wrap{grid-template-columns:1.1fr .9fr;gap:48px}.hero{padding:80px 0 64px}}
+.hero h1{font-size:clamp(36px,5.6vw,60px);line-height:1.04;font-weight:700;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--accent);white-space:nowrap}
+.lead{font-size:clamp(17px,1.6vw,19px);color:var(--muted);max-width:34em;margin:20px 0 28px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.fine{margin:18px 0 0;font-size:14px;color:var(--muted)}
+.hero-art{position:relative;max-width:440px;margin:0 auto}
+.hero-art img{border-radius:6px;filter:drop-shadow(0 22px 30px rgba(27,67,50,.18))}
+.hero-art .note{position:absolute;left:-6%;bottom:9%;background:#FFF0A0;color:#3B3820;font:600 21px/1.15 var(--f-hand);
+  padding:12px 14px 13px;transform:rotate(-4deg);box-shadow:0 10px 18px -10px rgba(40,40,20,.5);max-width:170px}
+@media (max-width:600px){.hero-art .note{left:-8px}}
+.hero-art .tag{position:absolute;top:12px;right:12px}
+
+/* sections */
+section{padding:64px 0}
+.band{background:var(--bg-2)}
+.head{max-width:640px;margin-bottom:34px}
+.head h2{font-size:clamp(28px,3.6vw,40px);line-height:1.1;font-weight:700}
+.head p:not(.eyebrow){color:var(--muted);margin:14px 0 0}
+
+/* product cards */
+.grid{display:grid;grid-template-columns:1fr;gap:22px}
+@media (min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 30px -18px rgba(27,67,50,.35)}
+.card img{aspect-ratio:4/3;object-fit:cover;width:100%}
+.card .body{display:flex;flex-direction:column;gap:8px;padding:18px 20px 20px;flex:1}
+.card h3{font-size:21px;line-height:1.2;font-weight:700}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.card .go{margin-top:auto;padding-top:8px;font:700 15px/1 var(--f-head);color:var(--accent)}
+.tag{align-self:flex-start;font:700 12px/1 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--amber);
+  background:var(--amber-soft);padding:6px 9px;border-radius:999px}
+.card.wide{grid-column:1/-1}
+@media (min-width:640px){.card.wide{flex-direction:row}.card.wide img{width:55%;aspect-ratio:auto}.card.wide .body{justify-content:center;padding:28px}
+  .card.wide .go{margin-top:10px}}
+
+/* steps */
+.steps{display:grid;grid-template-columns:1fr;gap:18px;counter-reset:s;list-style:none;padding:0;margin:0}
+@media (min-width:760px){.steps{grid-template-columns:repeat(3,1fr)}}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 22px 24px}
+.steps li::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;
+  background:var(--accent);color:#fff;font:700 17px/1 var(--f-head);margin-bottom:14px}
+.steps h3{font-size:20px;margin-bottom:6px}
+.steps p{margin:0;color:var(--muted);font-size:15px}
+
+/* digital paper */
+.paper .wrap{display:grid;grid-template-columns:1fr;gap:40px;align-items:center}
+@media (min-width:860px){.paper .wrap{grid-template-columns:1fr 1fr}}
+.phone{width:min(280px,72vw);margin:0 auto;padding:12px;border-radius:38px;background:var(--charcoal);
+  box-shadow:0 30px 50px -24px rgba(0,0,0,.45)}
+.phone img{border-radius:28px;aspect-ratio:1/2;object-fit:cover;object-position:top}
+.ticks{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px}
+.ticks li{position:relative;padding-left:30px}
+.ticks li::before{content:"";position:absolute;left:2px;top:5px;width:14px;height:8px;border-left:3px solid var(--accent);
+  border-bottom:3px solid var(--accent);transform:rotate(-45deg)}
+.soon{display:inline-block;margin-top:24px;font:600 22px/1.2 var(--f-hand);color:var(--hand)}
+
+/* about + footer */
+.about{max-width:680px}
+.about p{margin:14px 0 0;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:30px 0 calc(30px + env(safe-area-inset-bottom,0px))}
+footer .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;font-size:14px;color:var(--muted)}
+footer img{width:120px}
+footer nav{display:flex;gap:18px}
+</style>
 </head>
 <body>
 
-  <!-- ─── HERO ───────────────────────── -->
-  <section class="hero">
-    <div class="inner">
-      <div class="mark">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" aria-label="SOLEN mark">
-          <rect width="128" height="128" rx="28" fill="#1A1A1A"/>
-          <path d="M 38 64 A 26 26 0 1 1 90 64" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <circle cx="64" cy="52" r="5" fill="#F59E0B"/>
-        </svg>
-      </div>
-      <h1 class="wordmark">SOLEN</h1>
-      <div class="hero-line"></div>
-      <p class="hero-tagline">
-        A living workspace<br>born from your intent.
-      </p>
-      <div class="hero-buttons">
-        <a href="#" class="btn btn-primary">Enter SOLEN &rarr;</a>
-        <a href="#follow" class="btn btn-ghost">Follow the build</a>
-      </div>
-    </div>
-    <div class="scroll-hint"><span></span></div>
-  </section>
+<header class="top">
+  <div class="wrap">
+    <a href="#" aria-label="SOLENHQ home"><img src="./logo.png" width="440" height="125" alt="SOLENHQ"></a>
+    <nav class="nav" aria-label="Main">
+      <a class="hide-sm" href="#trackers">Trackers</a>
+      <a class="hide-sm" href="#digital-paper">Coming soon</a>
+      <a class="hide-sm" href="#about">About</a>
+      <a class="btn solid small" href="https://www.etsy.com/shop/SOLENHQ">Etsy shop</a>
+    </nav>
+  </div>
+</header>
 
-  <div class="divider"></div>
-
-  <!-- ─── WHAT IS SOLEN ──────────────── -->
-  <section id="about">
-    <div class="inner">
-      <p class="section-label">What is SOLEN?</p>
-      <h2 class="section-title">SOLEN turns your ideas, goals, and projects into a living personal workspace.</h2>
-      <p class="section-text">
-        It does not start with dashboards. It does not start with templates.<br>
-        It starts with <em>your intention</em>.<br><br>
-        You describe what you want to build — a startup, a research project, a book, a portfolio.<br>
-        SOLEN listens. Then it creates an empty workspace that grows only when you need something.<br>
-        No clutter. No complexity. Just what matters.
-      </p>
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Printable money trackers</p>
+        <h1 id="hero-title">Watch your progress <em>fill in</em>, one color at a time.</h1>
+        <p class="lead">Undated coloring trackers for paying off debt, saving week by week and building sinking funds.
+          Print at home, then color a bubble, a coin or a line for every payment and deposit.</p>
+        <div class="cta">
+          <a class="btn solid" href="#trackers">See the trackers</a>
+          <a class="btn line" href="https://www.etsy.com/shop/SOLENHQ">Visit the Etsy shop</a>
+        </div>
+        <p class="fine">Instant download on Etsy · US Letter and A4 · Start any week</p>
+      </div>
+      <div class="hero-art">
+        <img src="./img/hero-pages.jpg" width="660" height="960" alt="Three example pages: debt bubbles, savings coins and a holiday fund, partly colored in green, yellow, blue and pink.">
+        <span class="tag">Example</span>
+        <p class="note" aria-hidden="true">You color it in, week by week</p>
+      </div>
     </div>
   </section>
 
-  <div class="divider"></div>
-
-  <!-- ─── HOW IT WORKS ───────────────── -->
-  <section id="how">
-    <div class="inner">
-      <p class="section-label">How it works</p>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <h4>Name your dream project</h4>
-            <p>Start with words. "Build a marketplace for vintage furniture." Describe what you want.</p>
+  <section class="band" id="trackers" aria-labelledby="trackers-title">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">The trackers</p>
+        <h2 id="trackers-title">Pick the one that fits your goal</h2>
+        <p>Every tracker comes as two PDFs, US Letter and A4. Print the pages you need, as many times as you need, for your own use.</p>
+      </div>
+      <div class="grid">
+        <a class="card wide" href="https://www.etsy.com/listing/4602228076/budget-printables-bundle-debt-payoff">
+          <img src="./img/bundle.jpg" width="960" height="720" loading="lazy" alt="Money Coloring Trackers bundle with debt bubbles, savings coins and sinking fund pages.">
+          <div class="body">
+            <span class="tag">3-in-1 bundle</span>
+            <h3>Money Coloring Trackers Bundle</h3>
+            <p>Debt payoff, the 52-week savings challenge and sinking funds together in one file.</p>
+            <span class="go">View on Etsy →</span>
           </div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <h4>Choose the idea you want to begin with</h4>
-            <p>SOLEN helps you pick where to start. No overwhelm. One step at a time.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <h4>SOLEN creates an empty workspace</h4>
-            <p>Clean. Calm. Ready for you. Nothing pre-installed. Nothing assumed.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-content">
-            <h4>The workspace grows only when you need something</h4>
-            <p>Every tool, every view, every capability appears the moment you ask. Not before. Not after.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ─── WHO IT'S FOR ───────────────── -->
-  <section id="audience">
-    <div class="inner">
-      <p class="section-label">Who it's for</p>
-      <h2 class="section-title">For people who build things.</h2>
-      <div class="audience">
-        <span class="audience-tag">Founders</span>
-        <span class="audience-tag">Researchers</span>
-        <span class="audience-tag">Students</span>
-        <span class="audience-tag">Writers</span>
-        <span class="audience-tag">Independent builders</span>
-        <span class="audience-tag">Small teams</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ─── STATUS ─────────────────────── -->
-  <section id="status">
-    <div class="inner">
-      <p class="section-label">Current Status</p>
-      <div class="status-grid">
-        <div class="status-card">
-          <div class="label">Product Zero</div>
-          <div class="value done">Complete</div>
-        </div>
-        <div class="status-card">
-          <div class="label">Product One</div>
-          <div class="value done">Complete</div>
-        </div>
-        <div class="status-card">
-          <div class="label">Website v1</div>
-          <div class="value done">Live</div>
-        </div>
-        <div class="status-card">
-          <div class="label">Public launch</div>
-          <div class="value progress">In progress</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ─── FOLLOW ─────────────────────── -->
-  <section id="follow">
-    <div class="inner">
-      <p class="section-label">Follow SOLEN</p>
-      <div class="follow-links">
-        <a href="https://github.com/solenhq" class="follow-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
-          GitHub
         </a>
-        <a href="https://dev.to/solenhq" class="follow-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><text x="12" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="#0F1115">DEV</text></svg>
-          Dev.to
+        <a class="card" href="https://www.etsy.com/listing/4599730892/debt-payoff-coloring-tracker-debt">
+          <img src="./img/debt.jpg" width="960" height="720" loading="lazy" alt="Debt Payoff Coloring Tracker pages with colored bubbles.">
+          <div class="body">
+            <h3>Debt Payoff Coloring Tracker</h3>
+            <p>List your debts, choose your payoff order and color a bubble for every chunk you pay down.</p>
+            <span class="go">View on Etsy →</span>
+          </div>
         </a>
-        <a href="https://x.com/solenhq" class="follow-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          X
+        <a class="card" href="https://www.etsy.com/listing/4601187068/52-week-savings-challenge-printable">
+          <img src="./img/savings.jpg" width="960" height="720" loading="lazy" alt="52-Week Savings Challenge pages with a savings thermometer and coin chart.">
+          <div class="body">
+            <h3>52-Week Savings Challenge</h3>
+            <p>Six ways to save week by week, with charts, coins to color and savings thermometers.</p>
+            <span class="go">View on Etsy →</span>
+          </div>
         </a>
-        <a href="https://linkedin.com/company/solenhq" class="follow-link" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          LinkedIn
+        <a class="card" href="https://www.etsy.com/listing/4602015354/sinking-funds-coloring-tracker-printable">
+          <img src="./img/sinking.jpg" width="960" height="720" loading="lazy" alt="Sinking Funds Coloring Tracker pages with icons for holidays, car and home.">
+          <div class="body">
+            <h3>Sinking Funds Coloring Tracker</h3>
+            <p>Save ahead for the holidays, car repairs and other big costs, one colored icon at a time.</p>
+            <span class="go">View on Etsy →</span>
+          </div>
+        </a>
+        <a class="card" href="https://www.etsy.com/listing/4603084517/mileage-log-income-expense-tracker">
+          <img src="./img/selfemployed.jpg" width="960" height="720" loading="lazy" alt="Self-Employed Income and Expense Tracker pages with monthly logs and a mileage log.">
+          <div class="body">
+            <h3>Self-Employed Income &amp; Expense Tracker</h3>
+            <p>Monthly income and expense logs, mileage, invoices and year-end summaries. Records only, no tax math.</p>
+            <span class="go">View on Etsy →</span>
+          </div>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ─── FOOTER ─────────────────────── -->
-  <footer>
-    <div class="foot-mark">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-        <path d="M 38 64 A 26 26 0 1 1 90 64" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <circle cx="64" cy="52" r="5" fill="#F59E0B"/>
-      </svg>
+  <section aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-title">From download to your first colored square</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Download</h3><p>Buy on Etsy, then download your PDFs from your Etsy purchases. On a phone, use etsy.com in your web browser; the Etsy app may not open downloads.</p></li>
+        <li><h3>Print</h3><p>Print at home in US Letter or A4, then fill in by hand (you can't type into the PDF). Black-and-white printing works too.</p></li>
+        <li><h3>Color as you go</h3><p>Each time you pay or save, color your progress. Missed a week? Pick up where you left off.</p></li>
+      </ol>
     </div>
-    <p>SOLEN &copy; 2026 &middot; Built quietly. Built to last.</p>
-  </footer>
+  </section>
 
+  <section class="band paper" id="digital-paper" aria-labelledby="paper-title">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Coming soon · not for sale yet</p>
+        <h2 id="paper-title" style="font-size:clamp(28px,3.6vw,40px);line-height:1.1">A tap-to-fill version for your phone is on the way</h2>
+        <p class="lead" style="margin-bottom:0">Digital Paper will open like a sheet of paper on your phone or computer, with no app to install and no account.</p>
+        <ul class="ticks">
+          <li>Tap a line to write in it</li>
+          <li>Tap a coin or the thermometer to color it in</li>
+          <li>Saves as you go, on the device you use it on</li>
+          <li>Print it whenever you like</li>
+        </ul>
+        <p class="soon">First up: the 52-Week Savings Challenge.</p>
+        <p class="fine">It isn't on Etsy yet. The trackers on Etsy today are print-at-home PDFs that you fill in by hand.</p>
+      </div>
+      <div class="phone"><img src="./img/paper-phone.jpg" width="500" height="1000" loading="lazy" alt="The 52-Week Savings Challenge as Digital Paper on a phone, with handwritten entries and a thermometer colored in five colors."></div>
+    </div>
+  </section>
+
+  <section id="about" aria-labelledby="about-title">
+    <div class="wrap about">
+      <p class="eyebrow">About</p>
+      <h2 id="about-title" style="font-size:clamp(28px,3.6vw,40px);line-height:1.1">A small shop for calm money tools</h2>
+      <p>SOLENHQ makes printable trackers that turn saving and paying off debt into something you can see. Every page is
+        undated and printer-friendly, so you can start any week and keep going at your own pace.</p>
+      <p>Questions about a file? Send a message through the Etsy shop and it will be answered there.</p>
+      <p><small>For your own budgeting and record keeping. Not financial, tax or legal advice.</small></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img src="./logo.png" width="440" height="125" alt="SOLENHQ" loading="lazy">
+    <span>© 2026 SOLENHQ</span>
+    <nav aria-label="Footer">
+      <a href="https://www.etsy.com/shop/SOLENHQ">Etsy shop</a>
+      <a href="./privacy.html">Privacy</a>
+    </nav>
+  </div>
+</footer>
 </body>
 </html>
