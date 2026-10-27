@@ -1,6 +1,6 @@
 {
   "name": "52-Week Savings Paper",
-  "short_name": "Savings",
+  "short_name": "Savings Paper",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
