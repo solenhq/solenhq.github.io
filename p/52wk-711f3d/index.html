@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Savings Paper">
-<meta name="theme-color" content="#E3EAE5">
+<meta name="theme-color" content="#E2E8F0">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <meta name="robots" content="noindex, nofollow">
@@ -22,27 +22,27 @@ body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}img
 /* Layout: printed sheets lie in one column on a desk; basket, stamp and pencils sit in a small tray
    at the bottom-right corner. Each sheet is a size container, so its print scales with its width. */
 :root{
-  --desk:#E3EAE5; --desk-2:#D3DDD6; --desk-ink:#4F5F57; --tray:#F4F7F5; --tray-edge:#C3CEC7; --ring:#2D6A4F;
+  --desk:#E2E8F0; --desk-2:#D0D9E5; --desk-ink:#4A5868; --tray:#F4F7FA; --tray-edge:#C2CDDA; --ring:#2B5A8C;
   --paper:#FFFEFA; --paper-shadow:rgba(25,45,35,.34);
-  --deep:#1B4332; --accent:#2D6A4F; --mint:#E3F4E8; --print:#1F2D27; --muted:#5B6B63;
-  --rule:#98AAA0; --faint:#9AA9A1; --line-in:#8A9A92; --label:#3F4F47;
-  --ink:#24406B; --focus:rgba(233,162,27,.16);
-  --stamp:#2D6A4F; --stamp-bad:#A3392A;
+  --deep:#1C3557; --accent:#2B5A8C; --mint:#E6EEF8; --print:#1E2A38; --muted:#56657A;
+  --rule:#9AAAC0; --faint:#A0AEC2; --line-in:#8796AC; --label:#3D4C60;
+  --ink:#1F2F5C; --focus:rgba(233,162,27,.16);
+  --stamp:#2B5A8C; --stamp-bad:#A3392A;
   --note:#FFF0A0; --note-ink:#3B3820;
-  --wood:#C08A51; --wood-dark:#8E5E2E; --metal:#6F7E77; --cup:#3F6656; --cup-hi:#6E9683;
+  --wood:#C08A51; --wood-dark:#8E5E2E; --metal:#6B7889; --cup:#34557A; --cup-hi:#6D8DB0;
   --f-print:"Arimo","Helvetica Neue",Helvetica,Arial,sans-serif;
   --f-hand:"Caveat","Segoe Print","Bradley Hand","Comic Sans MS",cursive;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --desk:#1B231F; --desk-2:#131915; --desk-ink:#B4C2BA; --tray:#26302B; --tray-edge:#3A4741; --ring:#8FD1AC;
-    --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A3B1AA; --cup:#5E8A75; --cup-hi:#8DB5A1;
+    --desk:#18202B; --desk-2:#11171F; --desk-ink:#B3C0D0; --tray:#232D3A; --tray-edge:#36435A; --ring:#8DB6E6;
+    --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A0AEC2; --cup:#557AA3; --cup-hi:#8BABD0;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --desk:#1B231F; --desk-2:#131915; --desk-ink:#B4C2BA; --tray:#26302B; --tray-edge:#3A4741; --ring:#8FD1AC;
-  --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A3B1AA; --cup:#5E8A75; --cup-hi:#8DB5A1;
+  --desk:#18202B; --desk-2:#11171F; --desk-ink:#B3C0D0; --tray:#232D3A; --tray-edge:#36435A; --ring:#8DB6E6;
+  --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A0AEC2; --cup:#557AA3; --cup-hi:#8BABD0;
   color-scheme:dark;
 }
 [hidden]{display:none!important}
@@ -264,8 +264,8 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
     </filter>
     <clipPath id="coinClip" clipPathUnits="userSpaceOnUse"><circle cx="50" cy="50" r="41.2"/></clipPath>
     <radialGradient id="crShade" cx="50%" cy="50%" r="70%">
-      <stop offset="0" stop-color="#14231B" stop-opacity=".04"/>
-      <stop offset="1" stop-color="#14231B" stop-opacity=".3"/>
+      <stop offset="0" stop-color="#142033" stop-opacity=".04"/>
+      <stop offset="1" stop-color="#142033" stop-opacity=".3"/>
     </radialGradient>
   </defs>
 </svg>
@@ -360,7 +360,7 @@ const NS = 'http://www.w3.org/2000/svg';
 // ---------------- state and storage ----------------
 // S = {v, f: field values by "sheet.field" key, pencil, note (first-visit note put away), trash (last tossed page)}
 let raw0 = null, dirty = false, frozen = false, saveT;
-function blankState(){ return {v:1, f:{}, pencil:'mint', note:false, trash:null}; }
+function blankState(){ return {v:1, f:{}, pencil:'sky', note:false, trash:null}; }
 function migrate(o){
   // first prototype stored the thermometer as 21 cells (bulb + 20 lines of 5%)
   const f = o.f;
@@ -1076,7 +1076,7 @@ function ballSVG(tint){
     const a = I[(r() * 6) | 0], b = P[(r() * n) | 0];
     out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="#463F2E" stroke-opacity=".24" stroke-width=".8"/>`;
   }
-  const inks = ['#2D6A4F', '#98AAA0'].concat(tint || []);
+  const inks = ['#2B5A8C', '#9AAAC0'].concat(tint || []);
   for (let k = 0; k < 6; k++){
     const a = I[(r() * 6) | 0], ang = r() * Math.PI, len = 6 + r() * 10, c = inks[k % inks.length];
     out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${(a[0] + Math.cos(ang) * len).toFixed(1)}" y2="${(a[1] + Math.sin(ang) * len).toFixed(1)}" ` +
@@ -1091,12 +1091,12 @@ function creases(w, hh){
   for (let k = 0; k < 16; k++){
     const x = r() * w, y = r() * hh, a = r() * Math.PI * 2, l = (.25 + r() * .4) * Math.max(w, hh);
     const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l, x3 = x + Math.cos(a + 1.1) * l * .7, y3 = y + Math.sin(a + 1.1) * l * .7;
-    out += `<polygon points="${x},${y} ${x2},${y2} ${x3},${y3}" fill="${k % 2 ? '#ffffff' : '#14231B'}" opacity="${k % 2 ? .42 : .1}"/>`;
+    out += `<polygon points="${x},${y} ${x2},${y2} ${x3},${y3}" fill="${k % 2 ? '#ffffff' : '#142033'}" opacity="${k % 2 ? .42 : .1}"/>`;
   }
   for (let k = 0; k < 22; k++){
     const x = r() * w, y = r() * hh, a = r() * Math.PI, l = (.3 + r() * .7) * Math.max(w, hh);
     const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l;
-    out += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#14231B" stroke-opacity=".24" stroke-width="1.3"/>` +
+    out += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#142033" stroke-opacity=".24" stroke-width="1.3"/>` +
       `<line x1="${x + 1.3}" y1="${y + 1.3}" x2="${x2 + 1.3}" y2="${y2 + 1.3}" stroke="#ffffff" stroke-opacity=".6" stroke-width="1.1"/>`;
   }
   return out + `<rect width="100%" height="100%" fill="url(#crShade)"/></svg>`;
