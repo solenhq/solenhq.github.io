@@ -173,6 +173,9 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
   box-shadow:0 10px 24px -12px rgba(0,0,0,.45);transition:opacity .2s,transform .2s;
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .tools.away{opacity:0;transform:translateY(24px);pointer-events:none}
+.handle{display:none!important}
+.tools.foldable .handle{display:flex!important}
+.tools.collapsed .tool:not(.handle){display:none}
 .tool{display:flex;flex-direction:column;align-items:center;gap:0;width:58px;padding:2px 0 0;border:0;background:none;cursor:pointer;
   color:var(--desk-ink);font:600 15px/1 var(--f-hand);border-radius:12px}
 .tool svg{width:44px;height:44px;overflow:visible}
@@ -190,7 +193,9 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
   color:var(--print);padding:9px 12px 10px;cursor:pointer;font:700 15px/1.25 var(--f-print)}
 .opt small{display:block;margin-top:2px;font:400 13px/1.3 var(--f-print);color:var(--muted)}
 .opt:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
-@media (max-width:360px){.tool{width:52px}}
+@media (max-width:420px){.tool{width:54px}}
+@media (max-width:360px){.tool{width:50px}}
+@media (max-width:340px){.tool{width:46px}.tool svg{width:38px;height:38px}}
 .pencil{display:flex;align-items:center;gap:8px;border:0;background:none;padding:2px 4px;cursor:pointer;color:var(--desk-ink);
   font:600 17px/1 var(--f-hand);transition:transform .18s}
 .pencil svg{width:118px;height:20px}
@@ -274,8 +279,8 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
   <p class="note warn" id="nosave" role="alert" hidden></p>
   <button class="note" id="note" type="button" hidden>
     <b>Hi!</b> Tap a line to write. Tap a coin, a box or the thermometer to color it in, and tap again to erase.
-    What you write stays on this device: the stamp saves it, and the folder keeps a copy as a file.
-    The basket throws a whole page away.
+    What you write stays on this device. Your desk tools (pencils, stamp, printer, folder and basket) wait in
+    the corner: tap the pencil to open them.
     <small>Tap this note to put it away</small>
   </button>
 </main>
@@ -331,6 +336,14 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
       <path d="M10 23h28" style="stroke:var(--cup-hi)" stroke-width="2.4" stroke-linecap="round"/>
     </svg>
     <span>colors</span>
+  </button>
+  <button class="tool handle" id="t-tray" type="button" aria-label="Desk tools" aria-expanded="false">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g transform="rotate(38 24 24)"><rect x="20" y="3" width="8" height="30" rx="1.5" style="fill:var(--pc,#86BFE8)"/>
+        <rect x="20" y="3" width="8" height="5" rx="1" fill="#C9CFCA"/><rect x="20" y="9" width="8" height="2.5" fill="#fff" opacity=".35"/>
+        <path d="M20 33l4 10 4-10z" fill="#EBD2A5"/><path d="M22.5 39.2 24 43l1.5-3.8z" style="fill:var(--pc,#86BFE8)"/></g>
+    </svg>
+    <span id="trayLabel">tools</span>
   </button>
   <div class="fan" id="fan" hidden></div>
   <div class="fan menu" id="menu" hidden></div>
@@ -829,6 +842,7 @@ function pencilSVG(){
 }
 function showPencil(){
   tPencil.style.setProperty('--pc', pencil(S.pencil).c);
+  document.getElementById('t-tray').style.setProperty('--pc', pencil(S.pencil).c);
   fan.querySelectorAll('.pencil').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === S.pencil ? 'true' : 'false'));
 }
 function openFan(byKeyboard){
@@ -842,7 +856,7 @@ function closeFan(refocus){
   if (refocus) tPencil.focus({preventScroll:true});
 }
 PENCILS.forEach(p => fan.append(h('button', {class:'pencil', type:'button', 'data-id':p.id, style:`--pc:${p.c}`,
-  'aria-label':`${p.name} pencil`, onclick:() => { S.pencil = p.id; showPencil(); closeFan(true); changed(); say(`${p.name} pencil`); }},
+  'aria-label':`${p.name} pencil`, onclick:() => { S.pencil = p.id; showPencil(); closeFan(true); changed(); say(`${p.name} pencil`); foldSoon(350); }},
   pencilSVG(), h('span', {text:p.name}))));
 tPencil.addEventListener('click', e => { e.stopPropagation(); fan.hidden ? openFan(e.detail === 0) : closeFan(false); });
 tools.addEventListener('keydown', e => { if (e.key === 'Escape' && !fan.hidden){ e.preventDefault(); closeFan(true); } });
@@ -928,6 +942,7 @@ document.getElementById('t-save').addEventListener('click', () => {
         {opacity:.86, transform:'scale(1) rotate(-9deg)', offset:.22}, {opacity:.86, transform:'scale(1) rotate(-9deg)', offset:.82},
         {opacity:0, transform:'scale(1) rotate(-9deg)'}], {duration:2400, easing:'ease-out'});
   settle(a, 2400).then(() => m.remove());
+  foldSoon(1400);
 });
 
 // ---------------- print: every sheet on its own page ----------------
@@ -939,7 +954,7 @@ if (/[?&]tools=1(&|$)/.test(location.search)) framed = false;   // listing scree
 tPrint.hidden = framed || typeof window.print !== 'function';
 function readyToPrint(){ closeFan(false); disarm(); if (writing()) document.activeElement.blur(); refitAreas(); }
 addEventListener('beforeprint', readyToPrint);
-tPrint.addEventListener('click', () => { readyToPrint(); try { window.print(); } catch (e) {} });
+tPrint.addEventListener('click', () => { readyToPrint(); try { window.print(); } catch (e) {} foldSoon(300); });
 
 // ---------------- folder: keep a copy of the paper as a file, and open it again ----------------
 // the copy is the buyer's own file (Files app, Downloads ...), so a new phone or cleared browser data loses nothing
@@ -983,7 +998,7 @@ async function saveCopy(){
   try { file = new File([text], name, {type:'application/json'}); } catch (e) {}
   // on phones the share sheet offers "Save to Files"; computers get a normal download
   if (COARSE && file && navigator.canShare && navigator.canShare({files:[file]})){
-    try { await navigator.share({files:[file], title:'52-Week Savings Paper'}); showAsk('Copy saved', 1800); say('Copy saved'); return; }
+    try { await navigator.share({files:[file], title:'52-Week Savings Paper'}); showAsk('Copy saved', 1800); say('Copy saved'); foldSoon(1500); return; }
     catch (e) { if (e && e.name === 'AbortError') return; }
   }
   try {
@@ -991,7 +1006,7 @@ async function saveCopy(){
     const a = h('a', {href:url, download:name});
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    showAsk('Copy saved to your downloads', 2400); say('Copy saved to your downloads');
+    showAsk('Copy saved to your downloads', 2400); say('Copy saved to your downloads'); foldSoon(1500);
   } catch (e) { showAsk("This browser can't save files", 2600); say("This browser can't save files"); }
 }
 let pendingCopy = null;
@@ -1016,6 +1031,7 @@ function useCopy(){
   paintAll(); showPencil(); note.hidden = true; showTrash();
   closeMenu(true);
   showAsk('Your copy is back', 2200); say('Your copy is back on these pages');
+  foldSoon(1500);
 }
 tFolder.addEventListener('click', e => { e.stopPropagation(); menu.hidden ? openMenu(e.detail === 0) : closeMenu(false); });
 tools.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden){ e.preventDefault(); pendingCopy = null; closeMenu(true); } });
@@ -1257,11 +1273,13 @@ async function toss(sh, lift){
     busy = false;
   }
   say(`${label} page thrown away. Take it back is above the basket.`);
+  foldSoon(600);
 }
 
 async function takeBack(){
   if (busy || armed || !S.trash) return;
   busy = true;
+  setTray(true);
   const t = S.trash, sh = byId(t.id), hadFocus = document.activeElement === oops;
   S.trash = null; showTrash();
   sheetKeys(t.id).forEach(k => delete S.f[k]);
@@ -1303,10 +1321,33 @@ async function takeBack(){
     busy = false;
   }
   say(`${sh.dataset.label} page is back.`);
+  foldSoon(600);
   if (hadFocus || document.activeElement === document.body) basket.focus({preventScroll:true});
 }
 oops.addEventListener('click', takeBack);
 showTrash();
+
+// ---------------- the tray folds into a pencil on phones ----------------
+// so it never sits on the paper while reading; it opens on a tap and folds again after use, on scroll or a tap away
+const tTray = document.getElementById('t-tray'), trayLabel = document.getElementById('trayLabel');
+const NARROW = matchMedia('(max-width: 999px)');
+let trayOpen = true, trayY = 0;
+function setTray(open){
+  trayOpen = !!open || !NARROW.matches;
+  tools.classList.toggle('foldable', NARROW.matches);
+  tools.classList.toggle('collapsed', !trayOpen);
+  tTray.setAttribute('aria-expanded', trayOpen ? 'true' : 'false');
+  trayLabel.textContent = trayOpen ? 'hide' : 'tools';
+  if (!trayOpen){ closeFan(false); closeMenu(false); }
+  trayY = scrollY;
+}
+const idle = () => !armed && !busy && fan.hidden && menu.hidden && !pendingCopy;
+function foldSoon(ms){ if (NARROW.matches) setTimeout(() => { if (trayOpen && idle()) setTray(false); }, ms || 0); }
+tTray.addEventListener('click', e => { e.stopPropagation(); setTray(!trayOpen); });
+if (NARROW.addEventListener) NARROW.addEventListener('change', () => setTray(false)); else NARROW.addListener(() => setTray(false));
+addEventListener('scroll', () => { if (trayOpen && NARROW.matches && Math.abs(scrollY - trayY) > 80 && idle()) setTray(false); }, {passive:true});
+document.addEventListener('pointerdown', e => { if (trayOpen && NARROW.matches && !tools.contains(e.target) && idle()) setTray(false); }, true);
+setTray(false);
 })();
 </script>
 
