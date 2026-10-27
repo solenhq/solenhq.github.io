@@ -985,11 +985,18 @@ function opt(label, hint, onclick){ return h('button', {class:'opt', type:'butto
 function openMenu(byKeyboard){
   closeFan(false); disarm(); hideAsk();
   menu.replaceChildren(
-    opt('Save a copy', 'Keep this paper as a file on your phone or computer', saveCopy),
-    opt('Open a copy', 'Bring back a paper from a saved file', () => copyFile.click()));
+    opt('Save a copy', lastCopy() ? `Keep this paper as a file. Last copy: ${lastCopy()}` :
+      'Keep this paper as a file on your phone or computer', saveCopy),
+    opt('Open a copy', `Pick the file named "52-Week Savings Paper" and a date. ${WHERE}`, () => copyFile.click()));
   menu.hidden = false; tFolder.setAttribute('aria-expanded', 'true');
   if (byKeyboard) menu.querySelector('.opt').focus();
 }
+// where a saved copy usually lands, said in the buyer's terms (the share sheet lets them choose, so we can't know)
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const WHERE = IOS ? 'On iPhone, look in Files under Recents or Downloads.'
+  : COARSE ? 'On a phone, look in Downloads (Files app).' : 'On a computer, look in your Downloads folder.';
+function lastCopy(){ try { const t = +localStorage.getItem(KEY + '-lastcopy'); return t ? shortDate(new Date(t)) : ''; } catch (e) { return ''; } }
+function noteCopy(){ try { localStorage.setItem(KEY + '-lastcopy', String(Date.now())); } catch (e) {} }
 async function saveCopy(){
   const name = `52-Week Savings Paper ${new Date().toISOString().slice(0, 10)}.json`;
   const text = copyText();
@@ -998,7 +1005,10 @@ async function saveCopy(){
   try { file = new File([text], name, {type:'application/json'}); } catch (e) {}
   // on phones the share sheet offers "Save to Files"; computers get a normal download
   if (COARSE && file && navigator.canShare && navigator.canShare({files:[file]})){
-    try { await navigator.share({files:[file], title:'52-Week Savings Paper'}); showAsk('Copy saved', 1800); say('Copy saved'); foldSoon(1500); return; }
+    try {
+      await navigator.share({files:[file], title:'52-Week Savings Paper'});
+      noteCopy(); showAsk(IOS ? 'Saved. Find it in Files' : 'Copy saved', 2600); say('Copy saved. ' + WHERE); foldSoon(1500); return;
+    }
     catch (e) { if (e && e.name === 'AbortError') return; }
   }
   try {
@@ -1006,7 +1016,7 @@ async function saveCopy(){
     const a = h('a', {href:url, download:name});
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    showAsk('Copy saved to your downloads', 2400); say('Copy saved to your downloads'); foldSoon(1500);
+    noteCopy(); showAsk('Copy saved to Downloads', 2600); say('Copy saved to your downloads'); foldSoon(1500);
   } catch (e) { showAsk("This browser can't save files", 2600); say("This browser can't save files"); }
 }
 let pendingCopy = null;
