@@ -8,7 +8,7 @@ Website of the SOLENHQ Etsy shop (printable money trackers), served by GitHub Pa
 
 ## Do not change the address
 
-Digital Paper (planned) will save each buyer's writing in their browser under this exact address, `https://solenhq.github.io`.
+Digital Paper saves each buyer's writing in their browser under this exact address, `https://solenhq.github.io`.
 Adding a custom domain (a `CNAME` file) or renaming the account or this repository would move the site to a new address,
 and every buyer would open a blank paper. Do not do any of these unless a move to another address has been planned
 first, with a way for buyers to carry their saved papers across.
