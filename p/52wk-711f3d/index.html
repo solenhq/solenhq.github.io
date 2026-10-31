@@ -519,11 +519,15 @@ function ink(key, o = {}){
   el.addEventListener('input', () => {
     if (area) fit(el, o.lines);
     setF(key, el.value);
+    FIELDS.get(key)(S.f[key]);                 // the same field shown elsewhere follows (this one is left alone)
     if (o.onInput) o.onInput(el.value);
     changed(key);
   });
   if (!area) el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } });
-  reg(key, v => { el.value = v || ''; if (area) fit(el, o.lines); });
+  reg(key, v => {
+    if (document.activeElement === el && el.value === (v || '')) return;    // never move the caret of the line being written
+    el.value = v || ''; if (area) fit(el, o.lines);
+  });
   return el;
 }
 function blank(label, key, o = {}){

@@ -267,6 +267,10 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
   color:var(--ink);text-align:left;font:600 21px/1.1 var(--f-hand);cursor:pointer}
 .slipopt:last-child{border-bottom:0}
 .slipopt.muted{color:var(--muted);font:italic 14px/1.2 var(--f-print)}
+.slip.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;min-width:250px}
+.slip.grid .slipopt{border:0;border-radius:7px;text-align:center;font-size:19px;padding:6px 2px}
+.slip.grid .slipopt.wide{grid-column:1/-1}
+.slip.grid .slipopt.on{background:var(--mint)}
 
 /* one-choice check boxes */
 .oneof{display:flex;flex-wrap:wrap;gap:4px 18px}
@@ -279,7 +283,7 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
 
 /* ledger: one row per record from 600px and in print, two lines per record on a phone */
 .ledger{border:1px solid var(--rule);min-width:0}
-.lrow{display:grid;grid-template-columns:repeat(6,1fr);grid-template-areas:var(--areas);border-bottom:1px solid var(--rule)}
+.lrow{display:grid;grid-template-columns:repeat(var(--ncol,6),1fr);grid-template-areas:var(--areas);border-bottom:1px solid var(--rule)}
 .lrow:last-child{border-bottom:0}
 .lrow>.lcell{display:flex;align-items:center;justify-content:center;min-width:0;min-height:42px;border-right:1px solid var(--rule)}
 .lrow>.lcell.l2{border-top:1px dashed var(--faint)}
@@ -304,11 +308,14 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
 @container (min-width:600px){.cgrid{grid-template-columns:repeat(10,1fr)}}
 .cgrid:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .citem{aspect-ratio:1;cursor:pointer}
-.cgrid.card .citem{aspect-ratio:1/.8}
+.cgrid.cg-card .citem{aspect-ratio:1/.8}
 .citem svg{display:block;width:100%;height:100%;overflow:visible}
 .citem .fillshape{fill:var(--fill,transparent);opacity:.8}
 .citem .rim{fill:none;stroke:var(--accent);stroke-width:2.2}
 .citem .stripe{fill:var(--rule);opacity:.5}
+.cgrid.cg-icon .rim{stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.cgrid.cg-icon .clabel{font-weight:400}
+.cgrid.cg-coin .rim.inner{stroke-width:1.4;stroke-dasharray:3 3}
 .citem .clabel{fill:var(--label);font-family:var(--f-print);font-weight:700;text-anchor:middle}
 .citem .cross{stroke:var(--muted);stroke-width:2.5;stroke-linecap:round;display:none}
 .citem .ring{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-dasharray:6 5;display:none}
@@ -602,11 +609,15 @@ function ink(key, o = {}){
   el.addEventListener('input', () => {
     if (area) fit(el, o.lines);
     setF(key, el.value);
+    FIELDS.get(key)(S.f[key]);                 // the same field shown elsewhere follows (this one is left alone)
     if (o.onInput) o.onInput(el.value);
     changed(key);
   });
   if (!area) el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } });
-  reg(key, v => { el.value = v || ''; if (area) fit(el, o.lines); });
+  reg(key, v => {
+    if (document.activeElement === el && el.value === (v || '')) return;    // never move the caret of the line being written
+    el.value = v || ''; if (area) fit(el, o.lines);
+  });
   return el;
 }
 function blank(label, key, o = {}){
@@ -728,10 +739,11 @@ function tabs(o){
 
 // ---------------- a small paper slip of choices under a cell ----------------
 let openSlip = null;
-function slip(anchor, items, onPick){
+function slip(anchor, items, onPick, o = {}){
+  // o.grid: the choices in a grid (months); an item with wide:true spans the whole slip
   closeSlip();
-  const box = h('div', {class:'slip', role:'listbox'});
-  items.forEach(it => box.append(h('button', {class:'slipopt' + (it.muted ? ' muted' : ''), type:'button', role:'option',
+  const box = h('div', {class:'slip' + (o.grid ? ' grid' : ''), role:'listbox', 'aria-label':o.label});
+  items.forEach(it => box.append(h('button', {class:'slipopt' + (it.muted ? ' muted' : '') + (it.wide ? ' wide' : '') + (it.on ? ' on' : ''), type:'button', role:'option',
     onclick:e => { e.stopPropagation(); closeSlip(); onPick(it.value); }}, it.label)));
   const sh = anchor.closest('.sheet');
   sh.append(box);
@@ -780,7 +792,7 @@ function autoInk(key, text, o = {}){
 }
 
 // ---------------- a ledger: a ruled table whose rows fold onto two lines on a phone ----------------
-// cols: [{key, label, wide (fr), line (1|2), span (narrow columns out of 6), type, ...}]
+// cols: [{key, label, wide (fr), line (1|2|3), span (narrow columns out of o.ncol, default 6), type, ...}]
 // types: 'ink' | 'money' | 'rank' | 'check' | 'pick' | 'auto'; rows: count, or {min, grow:true, max}
 function ledger(o){
   const wide = o.cols.map(c => c.wide + 'fr').join(' ');
@@ -789,7 +801,7 @@ function ledger(o){
     o.cols.filter(c => c.line === line).forEach((c, i) => { for (let k = 0; k < c.span; k++) cells.push('c' + o.cols.indexOf(c)); });
     return '"' + cells.join(' ') + '"';
   }).join(' ');
-  const style = `--wide:${wide};--areas:${areas};--wide-areas:"${o.cols.map((c, i) => 'c' + i).join(' ')}"`;
+  const style = `--wide:${wide};--areas:${areas};--ncol:${o.ncol || 6};--wide-areas:"${o.cols.map((c, i) => 'c' + i).join(' ')}"`;
   const headRow = h('div', {class:'lrow lhead', style}, o.cols.map((c, i) =>
     h('span', {class:'lcell' + (c.line > 1 ? ' l2' : ''), style:`grid-area:c${i}`, text:c.label})));
   const rows = [];
@@ -856,22 +868,26 @@ function ledger(o){
 }
 
 // ---------------- a count grid: N numbered bubbles (or cards) colored "up to here" ----------------
-// o: {prefix, n, label(i) -> text, shape:'bubble'|'card', crossFrom(): index after which items are crossed out,
+// o: {prefix, n, label(i) -> text, shape:'bubble'|'card'|'coin'|'icon' (+ icon:{fill, line}), crossFrom(): index after which items are crossed out,
 //     guide(): index of a dashed ring, onLevel(level)}; stored like the thermometer: prefix.bands = [[upTo, pencil], ...]
 function countGrid(o){
   const key = o.prefix + '.bands';
-  const grid = h('div', {class:'cgrid ' + (o.shape || 'bubble'), role:'slider', tabindex:'0', 'aria-label':o.label,
+  const grid = h('div', {class:'cgrid cg-' + (o.shape || 'bubble'), role:'slider', tabindex:'0', 'aria-label':o.label,
     'aria-valuemin':'0', 'aria-valuemax':String(o.n)});
   const items = [];
   for (let i = 1; i <= o.n; i++){
     const shape = o.shape === 'card'
       ? [s('rect', {class:'fillshape', x:8, y:20, width:84, height:60, rx:9}), s('rect', {class:'stripe', x:8, y:32, width:84, height:9}),
          s('rect', {class:'rim', x:8, y:20, width:84, height:60, rx:9})]
+      : o.shape === 'icon'               // an outline picture with its number underneath, like the printable
+      ? [s('g', {transform:'translate(14 0) scale(.72)'}, s('path', {class:'fillshape', d:o.icon.fill}), s('path', {class:'rim', d:o.icon.line}))]
+      : o.shape === 'coin'
+      ? [s('circle', {class:'fillshape', cx:50, cy:50, r:41}), s('circle', {class:'rim', cx:50, cy:50, r:42}), s('circle', {class:'rim inner', cx:50, cy:50, r:33})]
       : [s('circle', {class:'fillshape', cx:50, cy:50, r:41}), s('circle', {class:'rim', cx:50, cy:50, r:42})];
     const lab = o.label(i);
-    const size = lab.length >= 6 ? 21 : lab.length === 5 ? 24 : lab.length === 4 ? 27 : 30;
+    const size = o.shape === 'icon' ? 17 : lab.length >= 6 ? 21 : lab.length === 5 ? 24 : lab.length === 4 ? 27 : 30;
     const svg = s('svg', {viewBox:'0 0 100 100', 'aria-hidden':'true'}, shape,
-      s('text', {class:'clabel', x:50, y:(o.shape === 'card' ? 64 : 50) + size * .36, style:`font-size:${size}px`}, lab),
+      s('text', {class:'clabel', x:50, y:o.shape === 'icon' ? 95 : (o.shape === 'card' ? 64 : 50) + size * .36, style:`font-size:${size}px`}, lab),
       s('path', {class:'cross', d:'M24 24 76 76M76 24 24 76'}), s('circle', {class:'ring', cx:50, cy:50, r:47}));
     const it = h('div', {class:'citem', 'data-i':i}, svg);
     items.push(it); grid.append(it);
