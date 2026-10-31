@@ -1017,7 +1017,7 @@ function fillTherm(o){
       b = b.filter(x => x[0] > 0);
     }
     setF(bandKey, b);
-    if (o.onLevel) o.onLevel(p, Math.max(before, 0));
+    if (o.onLevel) o.onLevel(p, before);            // before = -1: this tap also colored the START bulb
     paint(grow && p > was ? {from:was, to:p} : false);
     changed(bandKey);
   }
@@ -1184,10 +1184,10 @@ function sheetTotal(){
   totalTherm = fillTherm({prefix:'total', label:'Total debt thermometer', goal:() => readMoney(S.f['total.starting']),
     guide:() => { const g = readMoney(S.f['total.starting']), now = totalDebtNow(); return g > 0 && now >= 0 ? (g - now) / g * 100 : NaN; },
     onLevel:(p, before) => {
-      if (before < 0){                                 // the START bulb: write the starting total and date if empty
-        if (!S.f['total.starting'] && sumPlan('bal') > 0){ S.f['total.starting'] = showMoney(sumPlan('bal')).replace('$', ''); FIELDS.get('total.starting')(S.f['total.starting']); }
-        if (!S.f['total.startdate']){ S.f['total.startdate'] = todayY(); FIELDS.get('total.startdate')(S.f['total.startdate']); }
-      }
+      // starting (the START bulb, or a first tap straight on a line): write the starting date if empty; the starting
+      // total too, from the plan, whenever it is still empty and the level goes up
+      if (before < 0 && !S.f['total.startdate']){ S.f['total.startdate'] = todayY(); FIELDS.get('total.startdate')(S.f['total.startdate']); }
+      if (p > before && !S.f['total.starting'] && sumPlan('bal') > 0){ S.f['total.starting'] = showMoney(sumPlan('bal')).replace('$', ''); FIELDS.get('total.starting')(S.f['total.starting']); }
       const g = readMoney(S.f['total.starting']);
       [[25, 5], [50, 6], [75, 7], [100, 8]].forEach(([m, k]) => { if (p >= m && before < m) msTick(k, true); else if (p < m && before >= m) msTick(k, false); });
       if (g > 0) msTick(3, p / 100 * g >= 500);
