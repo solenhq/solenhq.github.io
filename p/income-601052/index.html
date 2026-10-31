@@ -1614,6 +1614,8 @@ PAPER.scope = sh => {
   }
   if (sh.dataset.sheet === 'miles' && milesTabs.front()) return {id:'miles.' + milesTabs.front(), label:MONTHS[+milesTabs.front() - 1] + ' trips', note:'Your vehicle and regular trips stay.'};
   if (sh.dataset.sheet === 'setup') return {id:'setup', label:'Setup', note:'Your stream and category names also leave the letters on your month pages; your lines stay.'};
+  if (sh.dataset.sheet === 'inv') return {id:'inv', label:'Invoices & Sales', note:'Invoices, sales and forms all go.'};
+  if (sh.dataset.sheet === 'jar') return {id:'jar', label:'Set-Aside Jar & Income Goal', note:'The jar, its log and your income goal all go.'};
   return null;
 };
 PAPER.reveal = id => {
