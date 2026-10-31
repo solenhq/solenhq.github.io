@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Savings Paper">
 <meta name="theme-color" content="#E2E8F0">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Savings Paper">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
 <title>52-Week Savings Paper</title>
@@ -282,6 +282,7 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
     What you write stays on this device. Your desk tools (pencils, stamp, printer, folder and basket) wait in
     the corner: tap the pencil to open them.
     <small>Tap this note to put it away</small>
+  
   </button>
 </main>
 
@@ -357,7 +358,33 @@ textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padd
 <script>
 (() => {
 'use strict';
-const KEY = 'solenhq-paper-52wk-v1';          // never rename: it holds a buyer's whole year
+// 52-Week Savings Challenge Digital Paper: product settings read by the shared engine (../engine)
+const PAPER = {
+  key: 'solenhq-paper-52wk-v1',              // never rename: buyers' saved papers live under this key
+  sheets: ['therm', 'classic', 'coins'],
+  product: '52-Week Savings Challenge',
+  name: '52-Week Savings Paper',             // copy file names and the share sheet
+  copyId: '52-week-savings',                 // inside saved copies; never change
+  migrate(f){
+    // first prototype stored the thermometer as 21 cells (bulb + 20 lines of 5%)
+    // ... and its start-date line under the key the START bulb now uses
+    if (typeof f['therm.start'] === 'string' && !PENCILS.some(p => p.id === f['therm.start'])){
+      if (!f['therm.start-date']) f['therm.start-date'] = f['therm.start'];
+      delete f['therm.start'];
+    }
+    if (Object.keys(f).some(k => k.startsWith('therm.cell.'))){
+      if (f['therm.cell.0']) f['therm.start'] = f['therm.cell.0'];
+      const bands = [];
+      for (let k = 1; k <= 20 && f[`therm.cell.${k}`]; k++){
+        const c = f[`therm.cell.${k}`];
+        if (bands.length && bands[bands.length - 1][1] === c) bands[bands.length - 1][0] = k * 5; else bands.push([k * 5, c]);
+      }
+      if (bands.length) f['therm.bands'] = bands;
+      Object.keys(f).filter(k => k.startsWith('therm.cell.')).forEach(k => delete f[k]);
+    }
+  },
+};
+const KEY = PAPER.key;                         // never rename: it holds a buyer's whole year
 const PKEY = KEY + '-place';                   // where the reader left off (a convenience, kept apart from the paper)
 const PENCILS = [
   {id:'mint', c:'#8FD1AC', name:'Mint'}, {id:'sun', c:'#F3C94F', name:'Sunflower'},
@@ -366,7 +393,7 @@ const PENCILS = [
 const pencil = id => PENCILS.find(p => p.id === id) || PENCILS[0];
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const COARSE = matchMedia('(pointer: coarse)').matches;
-const SHEET_IDS = ['therm', 'classic', 'coins'];
+const SHEET_IDS = PAPER.sheets;
 const DAY = 864e5;
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -375,27 +402,12 @@ const NS = 'http://www.w3.org/2000/svg';
 let raw0 = null, dirty = false, frozen = false, saveT;
 function blankState(){ return {v:1, f:{}, pencil:'sky', note:false, trash:null}; }
 function migrate(o){
-  // first prototype stored the thermometer as 21 cells (bulb + 20 lines of 5%)
-  const f = o.f;
-  // ... and its start-date line under the key the START bulb now uses
-  if (typeof f['therm.start'] === 'string' && !PENCILS.some(p => p.id === f['therm.start'])){
-    if (!f['therm.start-date']) f['therm.start-date'] = f['therm.start'];
-    delete f['therm.start'];
-  }
-  if (Object.keys(f).some(k => k.startsWith('therm.cell.'))){
-    if (f['therm.cell.0']) f['therm.start'] = f['therm.cell.0'];
-    const bands = [];
-    for (let k = 1; k <= 20 && f[`therm.cell.${k}`]; k++){
-      const c = f[`therm.cell.${k}`];
-      if (bands.length && bands[bands.length - 1][1] === c) bands[bands.length - 1][0] = k * 5; else bands.push([k * 5, c]);
-    }
-    if (bands.length) f['therm.bands'] = bands;
-    Object.keys(f).filter(k => k.startsWith('therm.cell.')).forEach(k => delete f[k]);
-  }
+  if (PAPER.migrate) PAPER.migrate(o.f);     // product-specific upgrades of older saves
   return o;
 }
 function validTrash(t){
-  if (!t || !SHEET_IDS.includes(t.id) || typeof t.saved !== 'object' || !t.saved || !(t.at > 0)) return null;
+  // t.id is a sheet id, or "<sheet>.<page>" for one page of a sheet with tabs
+  if (!t || typeof t.id !== 'string' || !SHEET_IDS.includes(t.id.split('.')[0]) || typeof t.saved !== 'object' || !t.saved || !(t.at > 0)) return null;
   return Date.now() - t.at < DAY ? t : null;
 }
 function load(){
@@ -429,10 +441,12 @@ function persist(){
     return false;
   }
 }
+let liveT;
 function changed(key){
   // writing on a page you threw away makes it a new page: the old one can't come back over it
   if (S.trash && key && key.startsWith(S.trash.id + '.')){ S.trash = null; showTrash(); }
   dirty = true; clearTimeout(saveT); saveT = setTimeout(persist, 600);
+  if (PAPER.live){ clearTimeout(liveT); liveT = setTimeout(() => PAPER.live(key), 0); }
 }
 let S = load();
 
@@ -458,6 +472,8 @@ function s(tag, attrs, ...kids){
 const money = v => '$' + v.toLocaleString('en-US');
 const cents = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 const today = () => new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+// "...on" lines that last for months or years carry the year: "Nov 3, 2026"
+const todayY = () => new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
 function rng(seed){ let x = (seed % 2147483646) + 1; return () => (x = x * 16807 % 2147483647) / 2147483647; }
 const sayEl = document.getElementById('say');
 function say(t){ sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = t; }, 40); }
@@ -472,7 +488,11 @@ function eatDismissTap(){ const d = dismissTap; dismissTap = false; return d; }
 
 // every field registers how to show its saved value; render(sheet) repaints one sheet from S
 const FIELDS = new Map();
-function reg(key, paint){ FIELDS.set(key, paint); }
+function reg(key, paint){
+  // several places may show the same field (a debt's name on its plan row and on its bubble page): paint them all
+  const prev = FIELDS.get(key);
+  FIELDS.set(key, prev ? (v, a) => { prev(v, a); paint(v, a); } : paint);
+}
 function render(prefix){
   for (const [k, paint] of FIELDS) if (!prefix || k.startsWith(prefix + '.')) paint(S.f[k], false);
 }
@@ -538,12 +558,11 @@ function tip(title, ...paras){ return h('div', {class:'tip'}, h('h3', {text:titl
 function head(title, sub){
   return [h('div', {class:'tab'}), h('h2', {class:'title', text:title}), h('p', {class:'sub', text:sub}), h('hr', {class:'hr'})];
 }
-const FOOT = '© SOLENHQ · 52-Week Savings Challenge · For personal use only';
+const FOOT = PAPER.foot || '© SOLENHQ · ' + PAPER.product + ' · For personal use only';
 function sheet(id, label, kids, extraFoot){
   return h('article', {class:'sheet', 'data-sheet':id, 'data-label':label, id:'sheet-' + id, 'aria-label':label},
     h('div', {class:'in'}, kids, h('p', {class:'foot'}, FOOT, extraFoot ? [h('br'), extraFoot] : null)));
 }
-
 // ---------------- thermometer ($1,378) ----------------
 // stored as the START bulb's pencil plus color bands [[up to %, pencil], ...]; "part of a line is fine"
 const GOAL = 1378, MILES = [25, 50, 75, 100];
@@ -802,12 +821,15 @@ function sheetCoins(){
     'For personal budgeting only. Not financial advice.');
 }
 
+// what the engine mounts on the desk, and what it repaints besides the plain fields
+PAPER.build = () => [sheetTherm(), sheetClassic(), sheetCoins()];
+PAPER.paint = () => { coinTotals(); paintTherm(false); };
 const desk = document.getElementById('desk');
-const SHEETS = [sheetTherm(), sheetClassic(), sheetCoins()];
+const SHEETS = PAPER.build();
 desk.append(...SHEETS);
 const byId = id => document.getElementById('sheet-' + id);
 function refitAreas(){ AREAS.forEach(([el, n]) => fit(el, n)); }
-function paintAll(){ render(); coinTotals(); paintTherm(false); refitAreas(); }
+function paintAll(){ render(); if (PAPER.paint) PAPER.paint(); refitAreas(); }
 paintAll();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitAreas, () => {});
 let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(refitAreas, 150); });
@@ -952,13 +974,18 @@ let framed = true;
 try { framed = window.self !== window.top; } catch (e) {}
 if (/[?&]tools=1(&|$)/.test(location.search)) framed = false;   // listing screenshots taken in a test frame
 tPrint.hidden = framed || typeof window.print !== 'function';
-function readyToPrint(){ closeFan(false); disarm(); if (writing()) document.activeElement.blur(); refitAreas(); }
+function readyToPrint(){
+  closeFan(false); disarm(); if (writing()) document.activeElement.blur();
+  if (PAPER.beforePrint) PAPER.beforePrint();      // e.g. every tab page with something on it gets its own printed page
+  refitAreas();
+}
+addEventListener('afterprint', () => { if (PAPER.afterPrint) PAPER.afterPrint(); });
 addEventListener('beforeprint', readyToPrint);
 tPrint.addEventListener('click', () => { readyToPrint(); try { window.print(); } catch (e) {} foldSoon(300); });
 
 // ---------------- folder: keep a copy of the paper as a file, and open it again ----------------
 // the copy is the buyer's own file (Files app, Downloads ...), so a new phone or cleared browser data loses nothing
-const COPY_KIND = 'solenhq-paper', COPY_PAPER = '52-week-savings';
+const COPY_KIND = 'solenhq-paper', COPY_PAPER = PAPER.copyId;
 const tFolder = document.getElementById('t-folder'), menu = document.getElementById('menu'), copyFile = document.getElementById('copyFile');
 tFolder.hidden = framed;
 const shortDate = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
@@ -987,7 +1014,7 @@ function openMenu(byKeyboard){
   menu.replaceChildren(
     opt('Save a copy', lastCopy() ? `Keep this paper as a file. Last copy: ${lastCopy()}` :
       'Keep this paper as a file on your phone or computer', saveCopy),
-    opt('Open a copy', `Pick the file named "52-Week Savings Paper" and a date. ${WHERE}`, () => copyFile.click()));
+    opt('Open a copy', `Pick the file named "${PAPER.name}" and a date. ${WHERE}`, () => copyFile.click()));
   menu.hidden = false; tFolder.setAttribute('aria-expanded', 'true');
   if (byKeyboard) menu.querySelector('.opt').focus();
 }
@@ -998,7 +1025,7 @@ const WHERE = IOS ? 'On iPhone, look in Files under Recents or Downloads.'
 function lastCopy(){ try { const t = +localStorage.getItem(KEY + '-lastcopy'); return t ? shortDate(new Date(t)) : ''; } catch (e) { return ''; } }
 function noteCopy(){ try { localStorage.setItem(KEY + '-lastcopy', String(Date.now())); } catch (e) {} }
 async function saveCopy(){
-  const name = `52-Week Savings Paper ${new Date().toISOString().slice(0, 10)}.json`;
+  const name = `${PAPER.name} ${new Date().toISOString().slice(0, 10)}.json`;
   const text = copyText();
   closeMenu(true);
   let file = null;
@@ -1006,7 +1033,7 @@ async function saveCopy(){
   // on phones the share sheet offers "Save to Files"; computers get a normal download
   if (COARSE && file && navigator.canShare && navigator.canShare({files:[file]})){
     try {
-      await navigator.share({files:[file], title:'52-Week Savings Paper'});
+      await navigator.share({files:[file], title:PAPER.name});
       noteCopy(); showAsk(IOS ? 'Saved. Find it in Files' : 'Copy saved', 2600); say('Copy saved. ' + WHERE); foldSoon(1500); return;
     }
     catch (e) { if (e && e.name === 'AbortError') return; }
@@ -1058,6 +1085,8 @@ function showTrash(){
   oops.hidden = !t || !ask.hidden;
 }
 const sheetKeys = id => Object.keys(S.f).filter(k => k.startsWith(id + '.'));
+// what the basket throws away: the whole sheet, or (on a sheet with tabs) the page in front, e.g. {id:'debts.3'}
+const scopeOf = sh => (PAPER.scope && PAPER.scope(sh)) || {id:sh.dataset.sheet, label:sh.dataset.label};
 function wiggle(){
   if (!REDUCED) basket.animate([{transform:'rotate(0)'}, {transform:'rotate(-8deg)'}, {transform:'rotate(6deg)'}, {transform:'rotate(-2deg)'}, {transform:'rotate(0)'}],
     {duration:420, easing:'ease-out'});
@@ -1202,13 +1231,14 @@ const tintOf = saved => [...new Set(Object.values(saved).filter(v => typeof v ==
 function arm(sh){
   disarm();
   closeFan(false);
-  if (!sheetKeys(sh.dataset.sheet).length){ wiggle(); showAsk('This page is already blank', 1800); say('This page is already blank'); return; }
+  const sc = scopeOf(sh);
+  if (!sheetKeys(sc.id).length){ wiggle(); showAsk('This page is already blank', 1800); say('This page is already blank'); return; }
   const lift = REDUCED ? null : sh.animate([{transform:'none'}, {transform:'translateY(-6px) rotate(-.35deg)'}],
     {duration:220, easing:'ease-out', fill:'forwards'});
   sh.classList.add('busy');
   armed = {sheet:sh, lift, y:scrollY, t:setTimeout(disarm, 4000)};
   showAsk('Toss this page? Tap the basket again');
-  say(`Toss the ${sh.dataset.label} page? Press the basket again to throw it away.`);
+  say(`Toss the ${sc.label} page? Press the basket again to throw it away.` + (sc.note ? ' ' + sc.note : ''));
 }
 function disarm(){
   if (!armed) return;
@@ -1228,7 +1258,7 @@ basket.addEventListener('click', () => {
 
 async function toss(sh, lift){
   busy = true;
-  const id = sh.dataset.sheet, label = sh.dataset.label;
+  const {id, label} = scopeOf(sh);
   if (document.activeElement && sh.contains(document.activeElement)) document.activeElement.blur();
   const saved = {};
   sheetKeys(id).forEach(k => { saved[k] = S.f[k]; delete S.f[k]; });
@@ -1290,7 +1320,8 @@ async function takeBack(){
   if (busy || armed || !S.trash) return;
   busy = true;
   setTray(true);
-  const t = S.trash, sh = byId(t.id), hadFocus = document.activeElement === oops;
+  const t = S.trash, sh = byId(t.id.split('.')[0]), hadFocus = document.activeElement === oops;
+  if (PAPER.reveal) PAPER.reveal(t.id);       // bring a tossed tab page to the front before it comes back
   S.trash = null; showTrash();
   sheetKeys(t.id).forEach(k => delete S.f[k]);
   Object.assign(S.f, t.saved);
@@ -1330,7 +1361,7 @@ async function takeBack(){
     paintAll();
     busy = false;
   }
-  say(`${sh.dataset.label} page is back.`);
+  say(`${scopeOf(sh).label} page is back.`);
   foldSoon(600);
   if (hadFocus || document.activeElement === document.body) basket.focus({preventScroll:true});
 }
