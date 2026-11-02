@@ -471,6 +471,8 @@ const PAPER = {
   product: 'House Savings Coloring Tracker',
   name: 'House Paper',                       // copy file names and the share sheet
   copyId: 'house-savings',                   // inside saved copies; never change
+  // the Moving Costs page first kept its fields under "move."; they now live under the sheet's own id, "moving."
+  migrate: f => { Object.keys(f).forEach(k => { if (k.startsWith('move.')){ const n = 'moving.' + k.slice(5); if (!(n in f)) f[n] = f[k]; delete f[k]; } }); },
 };
 const KEY = PAPER.key;                         // never rename: it holds a buyer's whole year
 const PKEY = KEY + '-place';                   // where the reader left off (a convenience, kept apart from the paper)
@@ -1204,30 +1206,30 @@ const MOVE_ROWS = 15;
 let moveLedger;
 const moveOut = {};
 function sheetMoving(){
-  moveLedger = ledger({prefix:'move', rows:MOVE_ROWS, cols:[
+  moveLedger = ledger({prefix:'moving', rows:MOVE_ROWS, cols:[
     {key:'what', label:'Cost', type:'custom', wide:36, line:1, span:4, render:r => r <= COSTS.length
-      ? h('span', {class:'pname', text:COSTS[r - 1]}) : ink(`move.what.${r}`, {label:`My own cost ${r - COSTS.length}`, max:24})},
+      ? h('span', {class:'pname', text:COSTS[r - 1]}) : ink(`moving.what.${r}`, {label:`My own cost ${r - COSTS.length}`, max:24})},
     {key:'est', label:'Estimate $', type:'money', wide:16, line:1, span:2},
     {key:'saved', label:'Saved $', type:'money', wide:16, line:2, span:2},
     {key:'paid', label:'Paid $', type:'money', wide:16, line:2, span:2},
     {key:'ok', label:'Fully saved', type:'custom', wide:12, line:2, span:2, render:r => {
       const c = s('circle', {cx:12, cy:12, r:8});
       const el = h('span', {class:'okc', role:'img'}, s('svg', {viewBox:'0 0 24 24'}, c));
-      reg(`move.__auto.okc.${r}`, () => {
-        const e = readMoney(S.f[`move.est.${r}`]), sv = readMoney(S.f[`move.saved.${r}`]), on = e > 0 && sv >= e, k = `move.c.${r}`;
+      reg(`moving.__auto.okc.${r}`, () => {
+        const e = readMoney(S.f[`moving.est.${r}`]), sv = readMoney(S.f[`moving.saved.${r}`]), on = e > 0 && sv >= e, k = `moving.c.${r}`;
         if (on && !S.f[k]) S.f[k] = S.pencil; else if (!on && S.f[k]) delete S.f[k];
         el.classList.toggle('on', on); c.style.fill = on ? pencil(S.f[k]).c : 'transparent';
         el.setAttribute('aria-label', on ? 'Fully saved' : 'Not fully saved yet');
       });
       return el;
     }}]});
-  const out = l => autoBlank(l, 'move.' + l.replace(/\W/g, '').toLowerCase());
+  const out = l => autoBlank(l, 'moving.' + l.replace(/\W/g, '').toLowerCase());
   const [eRow, eOut] = out('Estimates: $'), [sRow, sOut] = out('Saved: $'), [pRow, pOut] = out('Paid: $');
   Object.assign(moveOut, {eOut, sOut, pOut});
   return sheet('moving', 'Moving & Closing Costs Fund', [
     head('Moving & Closing Costs Fund', 'List what you\'ll pay to move in, and get your own estimates for each. The circle colors ' +
       'itself when a line is fully saved.'),
-    h('div', {class:'blanks'}, blank('Moving date:', 'move.date', {max:16})),
+    h('div', {class:'blanks'}, blank('Moving date:', 'moving.date', {max:16})),
     h('div', {style:'margin-top:14px'}, moveLedger.el),
     h('div', {class:'blanks stats', style:'margin-top:16px'}, eRow, sRow, pRow)],
     'For personal budgeting only. Not financial advice.');
@@ -1250,9 +1252,9 @@ function liveHS(){
   logOut.sOut.textContent = cut(sv);
   logOut.lOut.textContent = g > 0 ? cut(Math.max(0, g - (isNaN(sv) ? 0 : sv))) : '';
   moveLedger.repaintAutos();
-  moveOut.eOut.textContent = cut(sumCol('move', 'est', MOVE_ROWS));
-  moveOut.sOut.textContent = cut(sumCol('move', 'saved', MOVE_ROWS));
-  moveOut.pOut.textContent = cut(sumCol('move', 'paid', MOVE_ROWS));
+  moveOut.eOut.textContent = cut(sumCol('moving', 'est', MOVE_ROWS));
+  moveOut.sOut.textContent = cut(sumCol('moving', 'saved', MOVE_ROWS));
+  moveOut.pOut.textContent = cut(sumCol('moving', 'paid', MOVE_ROWS));
 }
 PAPER.build = () => [sheetPlan(), sheetHouse(), sheetLog(), sheetMoving()];
 PAPER.paint = liveHS;

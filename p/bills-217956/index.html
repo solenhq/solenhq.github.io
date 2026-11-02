@@ -1,0 +1,1838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#E2E8F0">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Bills Paper">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
+<title>Bills Paper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600;700&display=swap">
+<style>
+/* Layout: printed sheets lie in one column on a desk; basket, stamp and pencils sit in a small tray
+   at the bottom-right corner. Each sheet is a size container, so its print scales with its width. */
+:root{
+  --desk:#E2E8F0; --desk-2:#D0D9E5; --desk-ink:#4A5868; --tray:#F4F7FA; --tray-edge:#C2CDDA; --ring:#2B5A8C;
+  --paper:#FFFEFA; --paper-shadow:rgba(25,45,35,.34);
+  --deep:#1C3557; --accent:#2B5A8C; --mint:#E6EEF8; --print:#1E2A38; --muted:#56657A;
+  --rule:#9AAAC0; --faint:#A0AEC2; --line-in:#8796AC; --label:#3D4C60;
+  --ink:#1F2F5C; --focus:rgba(233,162,27,.16);
+  --stamp:#2B5A8C; --stamp-bad:#A3392A;
+  --note:#FFF0A0; --note-ink:#3B3820;
+  --wood:#C08A51; --wood-dark:#8E5E2E; --metal:#6B7889; --cup:#34557A; --cup-hi:#6D8DB0;
+  --f-print:"Arimo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-hand:"Caveat","Segoe Print","Bradley Hand","Comic Sans MS",cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --desk:#18202B; --desk-2:#11171F; --desk-ink:#B3C0D0; --tray:#232D3A; --tray-edge:#36435A; --ring:#8DB6E6;
+    --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A0AEC2; --cup:#557AA3; --cup-hi:#8BABD0;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --desk:#18202B; --desk-2:#11171F; --desk-ink:#B3C0D0; --tray:#232D3A; --tray-edge:#36435A; --ring:#8DB6E6;
+  --paper:#F2F0E8; --paper-shadow:rgba(0,0,0,.65); --metal:#A0AEC2; --cup:#557AA3; --cup-hi:#8BABD0;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation;scroll-padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%,var(--desk),var(--desk-2));background-color:var(--desk);
+  color:var(--print);font-family:var(--f-print);-webkit-tap-highlight-color:transparent}
+.say{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.desk{display:flex;flex-direction:column;align-items:center;gap:30px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:26px 150px}
+
+/* ---------- paper ---------- */
+.sheet{position:relative;width:100%;max-width:780px;container-type:inline-size;border-radius:2px;
+  background-color:var(--paper);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .36 0 0 0 0 .3 .1 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  box-shadow:0 1px 2px rgba(25,45,35,.12),0 16px 34px -16px var(--paper-shadow);
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.in{--fs-title:clamp(21px,3.4cqw + 10px,30px);--fs-sub:clamp(12.5px,.5cqw + 11px,14.5px);
+  --fs-lbl:clamp(13px,.35cqw + 12px,15px);--fs-th:clamp(11.5px,.3cqw + 10.5px,13px);
+  --fs-cell:clamp(13px,.4cqw + 11.5px,15px);
+  padding:22px 18px 18px;padding:clamp(22px,6cqw,52px) clamp(18px,6cqw,56px) 18px}
+@supports not (width:1cqw){.in{--fs-title:22px;--fs-sub:13px;--fs-lbl:14px;--fs-th:12px;--fs-cell:14px}}
+.tab{width:62px;height:5px;background:var(--accent);margin-bottom:14px}
+.title{font:700 var(--fs-title)/1.15 var(--f-print);color:var(--deep);margin:0;text-wrap:balance}
+.sub{font:italic var(--fs-sub)/1.45 var(--f-print);color:var(--muted);margin:8px 0 0;max-width:68ch}
+.hr{border:0;border-top:1px solid var(--rule);margin:14px 0 20px}
+.row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.big{font:700 var(--fs-lbl)/1 var(--f-print);color:var(--accent);padding-bottom:8px;white-space:nowrap}
+.foot{margin-top:28px;text-align:center;font:11px/1.5 var(--f-print);color:var(--muted);letter-spacing:.02em}
+
+/* write-in blanks */
+.blanks{display:grid;grid-template-columns:1fr;gap:12px 30px}
+@container (min-width:520px){.blanks{grid-template-columns:1fr 1fr}}
+.blank{display:flex;align-items:flex-end;gap:6px;min-width:0}
+.lbl{font:700 var(--fs-lbl)/1 var(--f-print);color:var(--print);white-space:nowrap;padding-bottom:8px}
+.ink{flex:1;min-width:0;width:100%;height:34px;margin:0;padding:2px 4px 3px;border:0;border-bottom:1px solid var(--line-in);
+  border-radius:0;background:transparent;color:var(--ink);caret-color:var(--ink);font:600 23px/1 var(--f-hand);
+  outline:none;-webkit-appearance:none;appearance:none;user-select:text;-webkit-user-select:text}
+.ink:focus{background-color:var(--focus)}
+.ink:focus-visible{box-shadow:inset 0 -2px 0 var(--accent)}
+.auto{flex:1;min-width:0;height:34px;padding:2px 4px 3px;border-bottom:1px solid var(--line-in);color:var(--ink);
+  font:600 23px/30px var(--f-hand);white-space:nowrap;overflow:hidden}
+textarea.ink{display:block;height:calc(var(--rows) * 36px);line-height:36px;padding:0 4px;border:0;resize:none;overflow:hidden;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--line-in) 35px,var(--line-in) 36px);
+  background-attachment:local}
+
+/* tables */
+.tbl{border:1px solid var(--rule);min-width:0}
+.tr{display:grid;border-bottom:1px solid var(--rule);height:42px;align-items:stretch}
+.tr:last-child{border-bottom:0}
+.tr>*{display:flex;align-items:center;justify-content:center;min-width:0;border-right:1px solid var(--rule)}
+.tr>*:last-child{border-right:0}
+.th{background:var(--mint);height:38px}
+.th>*{font:700 var(--fs-th)/1.1 var(--f-print);color:var(--deep);text-align:center;padding:0 2px}
+.wk{font:700 var(--fs-cell)/1 var(--f-print);color:var(--accent)}
+.dep{font:700 var(--fs-cell)/1 var(--f-print);color:var(--print);font-variant-numeric:tabular-nums}
+.tot{font:400 var(--fs-cell)/1 var(--f-print);color:var(--label);font-variant-numeric:tabular-nums}
+.tr .ink{height:100%;border:0;text-align:center;font-size:21px;padding:0 2px}
+.tr>.ink:not(:last-child){border-right:1px solid var(--rule)}
+.weeks .tr{grid-template-columns:16fr 30fr 20fr 22fr 12fr}
+.split{display:grid;grid-template-columns:1fr;gap:0}
+.split .tbl+.tbl{border-top:0}
+.split .tbl+.tbl .th{display:none}
+@container (min-width:600px){
+  .split{grid-template-columns:1fr 1fr;gap:22px}
+  .split .tbl+.tbl{border-top:1px solid var(--rule)}
+  .split .tbl+.tbl .th{display:grid}
+  .weeks .tr{height:34px}
+  .weeks .th{height:36px}
+}
+.days .tr{grid-template-columns:3fr 7fr;height:38px}
+
+/* check boxes */
+.box{width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.box svg{width:28px;height:28px;overflow:visible}
+.box .sq{fill:none;stroke:var(--accent);stroke-width:1.3}
+.tick{fill:none;stroke:var(--ink);stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.box.on .tick{stroke-dashoffset:0}
+
+/* tip boxes */
+.tip{background:var(--mint);border-radius:8px;padding:14px 18px 15px}
+.tip h3{margin:0 0 6px;font:700 15px/1.2 var(--f-print);color:var(--deep)}
+.tip p{margin:0;font:var(--fs-cell)/1.5 var(--f-print);color:var(--print)}
+.tip p+p{margin-top:2px}
+.h4{margin:0 0 4px;font:700 16px/1.2 var(--f-print);color:var(--deep)}
+
+/* thermometer sheet */
+.tgrid{display:grid;grid-template-columns:1fr;gap:26px;margin-top:22px}
+@container (min-width:600px){.tgrid{grid-template-columns:minmax(220px,290px) 1fr;align-items:start}}
+.therm{display:block;width:100%;max-width:300px;margin:0 auto;overflow:visible;cursor:pointer;outline:none;border-radius:10px}
+.therm:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.therm .outline{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round}
+.therm .seg{stroke:var(--rule);stroke-width:.7}
+.therm .tickm{stroke:var(--accent);stroke-width:1}
+.therm .pct{font:400 11px var(--f-print);fill:var(--muted)}
+.therm .usd{font:400 11.5px var(--f-print);fill:var(--print)}
+.therm .major{font-weight:700;fill:var(--accent)}
+.therm .startl{font:700 13px var(--f-print);fill:var(--accent)}
+.therm .pv{stroke:var(--ink);stroke-width:2;stroke-dasharray:5 4}
+.therm text{pointer-events:none}
+.notes{display:flex;flex-direction:column;gap:22px;min-width:0}
+
+/* coins */
+.coins{display:flex;flex-wrap:wrap;justify-content:center;margin:18px -4px 16px}
+.coin{flex:0 0 calc(100% / 6);aspect-ratio:1;padding:2px;border:0;background:none;cursor:pointer;max-width:100%}
+@container (min-width:600px){.coin{flex-basis:calc(100% / 8)}}
+.coin svg{display:block;width:100%;height:100%;overflow:visible}
+.coin .rim{fill:none;stroke:var(--accent);stroke-width:2.3}
+.coin .rim2{fill:none;stroke:var(--rule);stroke-width:1}
+.coin .amt{font:700 25px var(--f-print);fill:var(--label);text-anchor:middle}
+.coin .scrib{fill:none;stroke-width:8.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0;opacity:.92}
+.coin .under{opacity:.38}
+
+/* notes on the desk */
+.note{align-self:flex-end;width:min(270px,86%);margin:0 6px -46px 0;position:relative;z-index:3;transform:rotate(2.2deg);
+  background:var(--note);color:var(--note-ink);padding:14px 16px 16px;border:0;text-align:left;cursor:pointer;
+  font:600 19px/1.22 var(--f-hand);box-shadow:0 2px 3px rgba(40,40,20,.15),0 12px 22px -12px rgba(40,40,20,.45);
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.note b{font-weight:700}
+.note small{display:block;margin-top:8px;font:600 15px/1 var(--f-hand);opacity:.85}
+.note.warn{align-self:center;margin:0 0 -10px;transform:rotate(-1deg);cursor:default;color:var(--stamp-bad);width:min(330px,94%)}
+
+/* desk tray */
+.tools{position:fixed;z-index:40;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;gap:2px;padding:4px 6px 2px;border-radius:16px;background:var(--tray);border:1px solid var(--tray-edge);
+  box-shadow:0 10px 24px -12px rgba(0,0,0,.45);transition:opacity .2s,transform .2s;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tools.away{opacity:0;transform:translateY(24px);pointer-events:none}
+.handle{display:none!important}
+.tools.foldable .handle{display:flex!important}
+.tools.collapsed .tool:not(.handle){display:none}
+.tool{display:flex;flex-direction:column;align-items:center;gap:0;width:58px;padding:2px 0 0;border:0;background:none;cursor:pointer;
+  color:var(--desk-ink);font:600 15px/1 var(--f-hand);border-radius:12px}
+.tool svg{width:44px;height:44px;overflow:visible}
+.tool span{padding-bottom:3px}
+.tool:focus-visible,.pencil:focus-visible,.oops:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.coin:focus-visible,.box:focus-visible,.note:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#stampBody{transform-box:view-box;transform-origin:24px 40px}
+.basket .ball-in{opacity:0;transition:opacity .25s}
+.basket.full .ball-in{opacity:1}
+.fan{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;flex-direction:column;gap:6px;padding:10px 10px 10px 18px;
+  border-radius:14px;background:var(--tray);border:1px solid var(--tray-edge);box-shadow:0 14px 28px -14px rgba(0,0,0,.5)}
+.menu{gap:8px;padding:12px;width:min(270px,calc(100vw - 32px))}
+.menu p{margin:0 2px 2px;font:600 18px/1.2 var(--f-hand);color:var(--desk-ink)}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--tray-edge);border-radius:10px;background:var(--paper);
+  color:var(--print);padding:9px 12px 10px;cursor:pointer;font:700 15px/1.25 var(--f-print)}
+.opt small{display:block;margin-top:2px;font:400 13px/1.3 var(--f-print);color:var(--muted)}
+.opt:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+@media (max-width:420px){.tool{width:54px}}
+@media (max-width:360px){.tool{width:50px}}
+@media (max-width:340px){.tool{width:46px}.tool svg{width:38px;height:38px}}
+.pencil{display:flex;align-items:center;gap:8px;border:0;background:none;padding:2px 4px;cursor:pointer;color:var(--desk-ink);
+  font:600 17px/1 var(--f-hand);transition:transform .18s}
+.pencil svg{width:118px;height:20px}
+.pencil[aria-pressed="true"]{transform:translateX(-10px)}
+.oops{position:absolute;right:0;bottom:calc(100% + 10px);max-width:calc(100vw - 32px);white-space:nowrap;border:0;cursor:pointer;
+  background:var(--note);color:var(--note-ink);font:600 18px/1 var(--f-hand);padding:9px 12px 10px;transform:rotate(-2deg);
+  box-shadow:0 8px 18px -10px rgba(40,40,20,.55)}
+.oops.ask{cursor:default;transform:rotate(1.5deg);white-space:pre-line;max-width:min(330px,calc(100vw - 32px));text-align:left}
+
+/* effects layer: paper ball, stamp marks */
+.fx{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden}
+.ball{position:absolute;left:0;top:0;will-change:transform}
+.ball svg{display:block;width:100%;height:100%;filter:drop-shadow(0 6px 6px rgba(0,0,0,.25))}
+.mark{position:absolute;padding:5px 11px 6px;border:2.5px solid var(--stamp);border-radius:7px;color:var(--stamp);
+  text-align:center;font:700 19px/1 var(--f-print);letter-spacing:.14em;opacity:.86;transform:rotate(-9deg);background:transparent}
+.mark span{display:block;margin-top:3px;font-size:11px;letter-spacing:.08em}
+.mark.bad{border-color:var(--stamp-bad);color:var(--stamp-bad);letter-spacing:.06em;font-size:15px}
+.creases{position:absolute;left:0;pointer-events:none;z-index:6;opacity:0}
+.creases svg{display:block}
+.sheet.busy{z-index:20;will-change:transform,clip-path}
+@media (prefers-reduced-motion:reduce){.pencil{transition:none}.tools{transition:opacity .2s}.tools.away{transform:none}}
+
+/* printing: only the sheets, one per page, with what was written and colored */
+@media print{
+  @page{margin:.45in}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#fff!important}
+  .desk{display:block;padding:0}
+  .tools,.note,.fx,.say,.creases{display:none!important}
+  /* a size container can't be split across pages cleanly, so print uses the wide layout directly */
+  .sheet{max-width:none;width:100%;box-shadow:none;border-radius:0;background:#fff;visibility:visible!important;
+    container-type:normal;display:block}
+  .sheet+.sheet{break-before:page;page-break-before:always}
+  .in{--fs-title:26px;--fs-sub:13px;--fs-lbl:14px;--fs-th:12px;--fs-cell:13.5px}
+  .blanks{grid-template-columns:1fr 1fr}
+  .tgrid{grid-template-columns:minmax(220px,260px) 1fr;align-items:start}
+  .split{grid-template-columns:1fr 1fr;gap:22px}
+  .split .tbl+.tbl{border-top:1px solid var(--rule)}
+  .split .tbl+.tbl .th{display:grid}
+  .coin{flex-basis:calc(100% / 9)!important}
+  /* a few blank pixels on top, so no sliver of the next sheet's tab lands on the previous page */
+  .in{padding:8px 0 0}
+  .ink:focus{background-color:transparent;box-shadow:none}
+  .tgrid{margin-top:14px}
+  .therm{max-width:250px}
+  .weeks .tr{height:26px}
+  .weeks .th{height:30px}
+  .tr .ink{font-size:18px}
+  .days .tr{height:32px}
+  .coins{margin:10px -4px 8px}
+  .foot{margin-top:12px}
+}
+
+/* ---------- shared blocks (engine/blocks.js) ---------- */
+/* index tabs on the top edge of a sheet */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 16px}
+.ptab{min-height:38px;min-width:64px;padding:6px 12px 7px;border:1px solid var(--rule);border-bottom-width:3px;border-radius:9px 9px 3px 3px;
+  background:var(--mint);color:var(--deep);font:600 20px/1 var(--f-hand);cursor:pointer}
+.ptab.on{background:var(--paper);border-color:var(--accent);border-bottom-color:var(--accent)}
+.ptab.done{opacity:.8}
+.ptab.plus{background:transparent;border-style:dashed;color:var(--muted)}
+.ptab:focus-visible,.slipopt:focus-visible,.choice:focus-visible,.rank:focus-visible,.pick:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabpages.empty{padding:6px 0 4px;color:var(--muted);font:600 21px/1.3 var(--f-hand)}
+
+/* a small slip of choices */
+.slip{position:absolute;z-index:30;min-width:200px;max-width:min(300px,86%);padding:6px;border-radius:10px;background:var(--paper);
+  border:1px solid var(--rule);box-shadow:0 14px 28px -12px rgba(20,30,50,.45);transform:rotate(-.6deg)}
+.slipopt{display:block;width:100%;min-height:40px;padding:6px 10px;border:0;border-bottom:1px solid var(--mint);background:none;
+  color:var(--ink);text-align:left;font:600 21px/1.1 var(--f-hand);cursor:pointer}
+.slipopt:last-child{border-bottom:0}
+.slipopt.muted{color:var(--muted);font:italic 14px/1.2 var(--f-print)}
+.slip.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;min-width:250px}
+.slip.grid .slipopt{border:0;border-radius:7px;text-align:center;font-size:19px;padding:6px 2px}
+.slip.grid .slipopt.wide{grid-column:1/-1}
+.slip.grid .slipopt.on{background:var(--mint)}
+
+/* one-choice check boxes */
+.oneof{display:flex;flex-wrap:wrap;gap:4px 18px}
+.choice{display:flex;align-items:center;gap:4px;min-height:40px;padding:0 4px 0 0;border:0;background:none;cursor:pointer;
+  font:var(--fs-cell)/1.2 var(--f-print);color:var(--print);text-align:left}
+.choice svg{width:28px;height:28px;flex:0 0 28px;overflow:visible}
+.choice .sq{fill:none;stroke:var(--accent);stroke-width:1.3}
+.choice.on .tick{stroke-dashoffset:0}
+.ink.autoink::placeholder{color:var(--ink);opacity:.5}
+
+/* ledger: one row per record from 600px and in print, two lines per record on a phone */
+.ledger{border:1px solid var(--rule);min-width:0}
+.lrow{display:grid;grid-template-columns:repeat(var(--ncol,6),1fr);grid-template-areas:var(--areas);border-bottom:1px solid var(--rule)}
+.lrow:last-child{border-bottom:0}
+.lrow>.lcell{display:flex;align-items:center;justify-content:center;min-width:0;min-height:42px;border-right:1px solid var(--rule)}
+.lrow>.lcell.l2{border-top:1px dashed var(--faint)}
+.lhead{background:var(--mint)}
+.lhead>.lcell{min-height:30px;font:700 var(--fs-th)/1.1 var(--f-print);color:var(--deep);text-align:center;padding:2px}
+.lrow .ink{height:100%;min-height:42px;border:0;text-align:center;font-size:21px;padding:0 3px}
+.lc-ink .ink{text-align:left}
+@container (min-width:600px){
+  .lrow{grid-template-columns:var(--wide);grid-template-areas:var(--wide-areas)}
+  .lrow>.lcell{min-height:36px;border-top:0!important}
+  .lrow .ink{min-height:36px}
+}
+.lrow>.lcell:last-child{border-right:0}
+.rank,.pick{width:100%;height:100%;min-height:40px;border:0;background:none;cursor:pointer;color:var(--ink);font:600 22px/1 var(--f-hand)}
+.rank:not(.on)::after{content:"";display:inline-block;width:18px;height:18px;border:1.3px dashed var(--rule);border-radius:50%}
+.pick:not(.on)::after{content:"tap to pick";font:italic 12px var(--f-print);color:var(--muted)}
+.auto-cell{color:var(--ink);font:600 21px/1 var(--f-hand);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.lrow.struck .lc-ink:first-of-type .ink,.struck-name{text-decoration:line-through;text-decoration-color:var(--ink);text-decoration-thickness:1.5px}
+
+/* count grid: numbered bubbles or cards colored up to here */
+.cgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin:10px -2px 12px;outline:none;border-radius:8px}
+@container (min-width:600px){.cgrid{grid-template-columns:repeat(10,1fr)}}
+.cgrid:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.citem{aspect-ratio:1;cursor:pointer}
+.cgrid.cg-card .citem{aspect-ratio:1/.8}
+.citem svg{display:block;width:100%;height:100%;overflow:visible}
+.citem .fillshape{fill:var(--fill,transparent);opacity:.8}
+.citem .rim{fill:none;stroke:var(--accent);stroke-width:2.2}
+.citem .stripe{fill:var(--rule);opacity:.5}
+.cgrid.cg-icon .rim{stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.cgrid.cg-icon .clabel{font-weight:400}
+.cgrid.cg-coin .rim.inner{stroke-width:1.4;stroke-dasharray:3 3}
+.citem .clabel{fill:var(--label);font-family:var(--f-print);font-weight:700;text-anchor:middle}
+.citem .cross{stroke:var(--muted);stroke-width:2.5;stroke-linecap:round;display:none}
+.citem .ring{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-dasharray:6 5;display:none}
+.citem.on .fillshape{filter:url(#grainC)}
+.citem.crossed{cursor:default}
+.citem.crossed .cross{display:block}
+.citem.crossed .clabel{opacity:.45}
+.citem.guide .ring,.citem.pend .ring{display:block}
+.citem.pend .ring{stroke:var(--stamp-bad)}
+.therm .usd.hand{font:600 15px var(--f-hand);fill:var(--ink)}
+.therm .pv.guide{stroke:var(--muted);stroke-dasharray:3 4}
+@media print{
+  .lrow{grid-template-columns:var(--wide);grid-template-areas:var(--wide-areas)}
+  .lrow>.lcell{min-height:30px;border-top:0!important}
+  .lrow .ink{min-height:30px;font-size:18px}
+  .tabs .ptab:not(.on){display:none}
+  .tabpage.print-show{display:block!important;break-before:page;page-break-before:always}
+  .slip{display:none!important}
+  .cgrid{grid-template-columns:repeat(10,1fr)}
+}
+
+/* ---------- Bill Tracker paper ---------- */
+.pagetitle{margin:0;font:700 calc(var(--fs-title) * .82)/1.15 var(--f-print);color:var(--deep)}
+.pencilnote{margin:6px 0 10px;color:var(--muted);font:600 19px/1.25 var(--f-hand)}
+.stats{margin-top:4px}
+#sheet-months .ptab{min-width:50px;padding:6px 9px 7px;font-size:19px}
+
+/* a month: one row per bill */
+.btable{border:1px solid var(--rule)}
+.brow{display:grid;grid-template-columns:34fr 16fr 18fr 18fr 12fr;border-bottom:1px solid var(--rule);min-height:42px}
+.brow:last-child{border-bottom:0}
+.bhead{background:var(--mint);min-height:32px}
+.bhead .bcell{font:700 var(--fs-th)/1.1 var(--f-print);color:var(--deep);justify-content:center}
+.bcell{display:flex;align-items:center;justify-content:center;min-width:0;border-right:1px solid var(--rule)}
+.bcell:last-child{border-right:0}
+.bcell .ink{height:100%;border:0;text-align:center;font-size:20px;padding:0 2px}
+.bcell .auto-cell{font:600 19px/1 var(--f-hand);color:var(--ink)}
+.bn{justify-content:flex-start;gap:6px;padding:0 8px}
+.bname{font:var(--fs-cell)/1.2 var(--f-print);color:var(--print);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flag{display:none;font:700 11px/1 var(--f-print);color:var(--stamp-bad);border:1.5px solid var(--stamp-bad);border-radius:5px;padding:2px 4px;transform:rotate(-4deg)}
+.brow.late .flag{display:inline-block}
+
+/* the year: bills down, months across */
+.ygrid{border:1px solid var(--rule);overflow-x:auto}
+.yrow{display:grid;grid-template-columns:minmax(80px,1.6fr) repeat(12,minmax(26px,1fr));border-bottom:1px solid var(--rule);min-width:420px}
+.yrow:last-child{border-bottom:0}
+.yrow>*{display:flex;align-items:center;justify-content:center;min-width:0;border-right:1px solid var(--rule);min-height:34px}
+.yrow>*:last-child{border-right:0}
+.yhead{background:var(--mint)}
+.yh{font:700 11px/1 var(--f-print);color:var(--deep)}
+.yn{justify-content:flex-start!important;padding:0 6px;font:var(--fs-cell)/1.1 var(--f-print);color:var(--print);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.yc .box svg{width:22px;height:22px}
+.ycount{font:600 15px/1 var(--f-hand);color:var(--ink)}
+@media print{.ygrid{overflow:visible}.yrow{min-width:0}}
+.brow .bcell .auto-cell{font-size:16px;padding:0 2px}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="grainC" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.5 0 0 0 -.12" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in" result="g"/>
+      <feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="3" result="w"/>
+      <feDisplacementMap in="g" in2="w" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="grainT" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.4 0 0 0 -.05" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
+    </filter>
+    <clipPath id="coinClip" clipPathUnits="userSpaceOnUse"><circle cx="50" cy="50" r="41.2"/></clipPath>
+    <radialGradient id="crShade" cx="50%" cy="50%" r="70%">
+      <stop offset="0" stop-color="#142033" stop-opacity=".04"/>
+      <stop offset="1" stop-color="#142033" stop-opacity=".3"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<main class="desk" id="desk" aria-label="Bill Tracker pages">
+  <p class="note warn" id="nosave" role="alert" hidden></p>
+  <button class="note" id="note" type="button" hidden>
+    <b>Hi!</b> List your bills once. Then each month, tick a bill when it's paid: the date writes itself,
+    and your year fills in. What you write stays on this device. Your desk tools (pencils, stamp, printer,
+    folder and basket) wait in the corner: tap the pencil to open them.
+    <small>Tap this note to put it away</small>
+  </button>
+</main>
+
+<div class="tools" id="tools">
+  <button class="tool basket" id="t-toss" type="button" aria-label="Toss this page">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g class="ball-in"><circle cx="22" cy="12" r="8" fill="#F7F5EE" stroke="#CFCBBF"/><path d="M16 10l5 3 4-5M19 17l3-4 5 2" stroke="#BDB8AB" fill="none"/></g>
+      <path d="M8 13h32l-4 32H12z" style="fill:var(--tray);stroke:var(--metal)" stroke-width="1.8" stroke-linejoin="round" fill-opacity=".55"/>
+      <path d="M15 14l2.2 30M20.5 14l.9 30M27.5 14l-.9 30M33 14l-2.2 30M9.3 23h29.4M10.4 32h27.2" style="stroke:var(--metal)" stroke-width="1" opacity=".75"/>
+      <path d="M7 13h34" style="stroke:var(--metal)" stroke-width="2.6" stroke-linecap="round"/>
+    </svg>
+    <span>toss</span>
+  </button>
+  <button class="tool" id="t-save" type="button" aria-label="Save">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g id="stampBody">
+        <circle cx="24" cy="9" r="6.5" style="fill:var(--wood)"/>
+        <rect x="21" y="14" width="6" height="11" rx="1.5" style="fill:var(--wood-dark)"/>
+        <rect x="9" y="24" width="30" height="10" rx="2.5" style="fill:var(--wood)"/>
+        <rect x="11" y="34" width="26" height="5" rx="1" style="fill:var(--stamp)"/>
+      </g>
+      <path d="M9 45h30" style="stroke:var(--stamp)" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+    </svg>
+    <span>save</span>
+  </button>
+  <button class="tool" id="t-print" type="button" aria-label="Print">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <rect x="14" y="5" width="20" height="14" rx="1" fill="#FFFEFA" style="stroke:var(--metal)" stroke-width="1.6"/>
+      <path d="M18 10h12M18 14h8" style="stroke:var(--rule)" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="6" y="18" width="36" height="16" rx="4" style="fill:var(--cup)"/>
+      <circle cx="35" cy="24" r="1.8" style="fill:var(--cup-hi)"/>
+      <rect x="13" y="29" width="22" height="15" rx="1" fill="#FFFEFA" style="stroke:var(--metal)" stroke-width="1.6"/>
+      <path d="M17 34h14M17 38h10" style="stroke:var(--accent)" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <span>print</span>
+  </button>
+  <button class="tool" id="t-folder" type="button" aria-label="Folder: save or open a copy" aria-expanded="false" aria-controls="menu">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M5 13a3 3 0 0 1 3-3h10l4 4h18a3 3 0 0 1 3 3v3H5z" fill="#D9B46E"/>
+      <rect x="11" y="9" width="24" height="16" rx="1" fill="#FFFEFA" style="stroke:var(--metal)" stroke-width="1.2" transform="rotate(-6 23 17)"/>
+      <path d="M15 14h14M15 18h10" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round" transform="rotate(-6 23 17)"/>
+      <path d="M5 19h38l-2.5 21a3 3 0 0 1-3 2.6H10.5a3 3 0 0 1-3-2.6z" fill="#EDCB86" style="stroke:var(--wood-dark)" stroke-width="1.2"/>
+    </svg>
+    <span>folder</span>
+  </button>
+  <button class="tool" id="t-pencil" type="button" aria-label="Pencil colors" aria-expanded="false" aria-controls="fan">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g transform="rotate(-14 24 38)"><rect x="15" y="9" width="5" height="26" rx="1" fill="#E9C35A"/><path d="M15 9l2.5-6 2.5 6z" fill="#EBD2A5"/></g>
+      <g transform="rotate(13 24 38)"><rect x="28" y="10" width="5" height="26" rx="1" fill="#86BFE8"/><path d="M28 10l2.5-6 2.5 6z" fill="#EBD2A5"/></g>
+      <g><rect x="21.5" y="7" width="5.4" height="28" rx="1" style="fill:var(--pc,#8FD1AC)"/><path d="M21.5 7l2.7-6.5 2.7 6.5z" fill="#EBD2A5"/><path d="M23.3 2.6l.9-2.1.9 2.1z" style="fill:var(--pc,#8FD1AC)"/></g>
+      <path d="M10 23h28l-3 22H13z" style="fill:var(--cup)"/>
+      <path d="M10 23h28" style="stroke:var(--cup-hi)" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <span>colors</span>
+  </button>
+  <button class="tool handle" id="t-tray" type="button" aria-label="Desk tools" aria-expanded="false">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <g transform="rotate(38 24 24)"><rect x="20" y="3" width="8" height="30" rx="1.5" style="fill:var(--pc,#86BFE8)"/>
+        <rect x="20" y="3" width="8" height="5" rx="1" fill="#C9CFCA"/><rect x="20" y="9" width="8" height="2.5" fill="#fff" opacity=".35"/>
+        <path d="M20 33l4 10 4-10z" fill="#EBD2A5"/><path d="M22.5 39.2 24 43l1.5-3.8z" style="fill:var(--pc,#86BFE8)"/></g>
+    </svg>
+    <span id="trayLabel">tools</span>
+  </button>
+  <div class="fan" id="fan" hidden></div>
+  <div class="fan menu" id="menu" hidden></div>
+  <input type="file" id="copyFile" accept=".json,application/json,text/plain" hidden>
+  <p class="oops ask" id="ask" hidden></p>
+  <button class="oops" id="oops" type="button" hidden>Oops? Take it back</button>
+</div>
+<div class="fx" id="fx"></div>
+<p class="say" id="say" aria-live="polite"></p>
+
+<script>
+(() => {
+'use strict';
+// Bill Tracker Digital Paper: product settings read by the shared engine (../engine)
+const PAPER = {
+  key: 'solenhq-paper-bills-v1',             // never rename: buyers' saved papers live under this key
+  sheets: ['bills', 'months', 'year'],
+  product: 'Bill Tracker',
+  name: 'Bills Paper',                       // copy file names and the share sheet
+  copyId: 'bill-tracker',                    // inside saved copies; never change
+};
+const KEY = PAPER.key;                         // never rename: it holds a buyer's whole year
+const PKEY = KEY + '-place';                   // where the reader left off (a convenience, kept apart from the paper)
+const PENCILS = [
+  {id:'mint', c:'#8FD1AC', name:'Mint'}, {id:'sun', c:'#F3C94F', name:'Sunflower'},
+  {id:'peach', c:'#F3A472', name:'Peach'}, {id:'rose', c:'#EC93AC', name:'Rose'},
+  {id:'sky', c:'#86BFE8', name:'Sky'}, {id:'lilac', c:'#B5A2E6', name:'Lilac'}];
+const pencil = id => PENCILS.find(p => p.id === id) || PENCILS[0];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COARSE = matchMedia('(pointer: coarse)').matches;
+const SHEET_IDS = PAPER.sheets;
+const DAY = 864e5;
+const NS = 'http://www.w3.org/2000/svg';
+
+// ---------------- state and storage ----------------
+// S = {v, f: field values by "sheet.field" key, pencil, note (first-visit note put away), trash (last tossed page)}
+let raw0 = null, dirty = false, frozen = false, saveT;
+function blankState(){ return {v:1, f:{}, pencil:'sky', note:false, trash:null}; }
+function migrate(o){
+  if (PAPER.migrate) PAPER.migrate(o.f);     // product-specific upgrades of older saves
+  return o;
+}
+function validTrash(t){
+  // t.id is a sheet id, or "<sheet>.<page>" for one page of a sheet with tabs
+  if (!t || typeof t.id !== 'string' || !SHEET_IDS.includes(t.id.split('.')[0]) || typeof t.saved !== 'object' || !t.saved || !(t.at > 0)) return null;
+  return Date.now() - t.at < DAY ? t : null;
+}
+function load(){
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) { return blankState(); }
+  raw0 = raw; frozen = false;
+  if (!raw) return blankState();
+  try {
+    const o = JSON.parse(raw);
+    if (!o || typeof o !== 'object' || !o.f || typeof o.f !== 'object' || Array.isArray(o.f)) throw new Error('shape');
+    if (o.v > 1) frozen = true;                // written by a newer page: show it, never overwrite it
+    return migrate({v:1, f:o.f, pencil:pencil(o.pencil).id, note:!!o.note, trash:validTrash(o.trash)});
+  } catch (e) {
+    try { if (!localStorage.getItem(KEY + '.bak')) localStorage.setItem(KEY + '.bak', raw); } catch (e2) {}
+    return blankState();
+  }
+}
+function canStore(){
+  try { localStorage.setItem(KEY + '-t', '1'); localStorage.removeItem(KEY + '-t'); return true; } catch (e) { return false; }
+}
+function persist(){
+  clearTimeout(saveT);
+  if (frozen){ warn('This paper was saved by a newer version of this page. Close this tab and open the link again.'); return false; }
+  try {
+    const raw = JSON.stringify(S);
+    localStorage.setItem(KEY, raw);
+    raw0 = raw; dirty = false;
+    return true;
+  } catch (e) {
+    warn();
+    return false;
+  }
+}
+let liveT;
+function changed(key){
+  // writing on a page you threw away makes it a new page: the old one can't come back over it
+  if (S.trash && key && key.startsWith(S.trash.id + '.')){ S.trash = null; showTrash(); }
+  dirty = true; clearTimeout(saveT); saveT = setTimeout(persist, 600);
+  if (PAPER.live){ clearTimeout(liveT); liveT = setTimeout(() => PAPER.live(key), 0); }
+}
+let S = load();
+
+// ---------------- tiny DOM helpers ----------------
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})){
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) el.append(kid);
+  return el;
+}
+function s(tag, attrs, ...kids){
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, v);
+  for (const kid of kids.flat(Infinity)) if (kid != null) el.append(kid);
+  return el;
+}
+const money = v => '$' + v.toLocaleString('en-US');
+const cents = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const today = () => new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+// "...on" lines that last for months or years carry the year: "Nov 3, 2026"
+const todayY = () => new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+function rng(seed){ let x = (seed % 2147483646) + 1; return () => (x = x * 16807 % 2147483647) / 2147483647; }
+const sayEl = document.getElementById('say');
+function say(t){ sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = t; }, 40); }
+const writing = () => !!(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('ink'));
+
+// a tap that only closes the phone keyboard must not also color or erase what lies under the finger
+let dismissTap = false;
+document.addEventListener('pointerdown', e => {
+  dismissTap = e.pointerType === 'touch' && writing() && !(e.target.closest && e.target.closest('.ink'));
+}, true);
+function eatDismissTap(){ const d = dismissTap; dismissTap = false; return d; }
+
+// every field registers how to show its saved value; render(sheet) repaints one sheet from S
+const FIELDS = new Map();
+function reg(key, paint){
+  // several places may show the same field (a debt's name on its plan row and on its bubble page): paint them all
+  const prev = FIELDS.get(key);
+  FIELDS.set(key, prev ? (v, a) => { prev(v, a); paint(v, a); } : paint);
+}
+function render(prefix){
+  for (const [k, paint] of FIELDS) if (!prefix || k.startsWith(prefix + '.')) paint(S.f[k], false);
+}
+function setF(key, v){
+  if (v === undefined || v === '' || v === false || (Array.isArray(v) && !v.length)) delete S.f[key]; else S.f[key] = v;
+}
+
+// ---------------- paper parts ----------------
+function fit(el, rows){
+  // ruled boxes grow a ruled line at a time, so nothing written is ever hidden
+  el.style.height = rows * 36 + 'px';
+  const need = Math.ceil((el.scrollHeight - 1) / 36) * 36;
+  if (need > rows * 36) el.style.height = need + 'px';
+  el.scrollTop = 0;
+}
+const AREAS = [];
+function ink(key, o = {}){
+  const area = !!o.lines;
+  const el = h(area ? 'textarea' : 'input', {
+    class:'ink', id:key.replace(/\./g, '-'), 'data-key':key, autocomplete:'off', autocorrect:'off',
+    autocapitalize:o.cap || 'sentences', spellcheck:'false', maxlength:o.max || 40, inputmode:o.mode,
+    enterkeyhint:area ? null : 'done', 'aria-label':o.label, rows:o.lines, type:area ? null : 'text'});
+  if (area){ el.style.setProperty('--rows', o.lines); AREAS.push([el, o.lines]); el.addEventListener('blur', () => { el.scrollTop = 0; }); }
+  el.addEventListener('input', () => {
+    if (area) fit(el, o.lines);
+    setF(key, el.value);
+    FIELDS.get(key)(S.f[key]);                 // the same field shown elsewhere follows (this one is left alone)
+    if (o.onInput) o.onInput(el.value);
+    changed(key);
+  });
+  if (!area) el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } });
+  reg(key, v => {
+    if (document.activeElement === el && el.value === (v || '')) return;    // never move the caret of the line being written
+    el.value = v || ''; if (area) fit(el, o.lines);
+  });
+  return el;
+}
+function blank(label, key, o = {}){
+  return h('label', {class:'blank'}, h('span', {class:'lbl', text:label}),
+    ink(key, {label:label.replace(/[:\s$]+$/, ''), ...o}));
+}
+function autoBlank(label, key){
+  const out = h('span', {class:'auto', id:key.replace(/\./g, '-')});
+  return [h('div', {class:'blank'}, h('span', {class:'lbl', text:label}), out), out];
+}
+function checkbox(key, label, onToggle){
+  const tick = s('path', {d:'M4 12.8 9.2 18 20.5 4.8', class:'tick', pathLength:'1'});
+  const btn = h('button', {class:'box', type:'button', 'aria-label':label, 'aria-pressed':'false'},
+    s('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true'}, s('rect', {x:5, y:5, width:14, height:14, class:'sq'}), tick));
+  function paint(on, anim){
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('on', !!on);
+    if (anim && on && !REDUCED) tick.animate([{strokeDashoffset:1}, {strokeDashoffset:0}], {duration:260, easing:'ease-out'});
+  }
+  btn.addEventListener('click', () => {
+    if (eatDismissTap()) return;
+    const on = !S.f[key];
+    setF(key, on);
+    paint(on, true);
+    if (onToggle) onToggle(on);
+    changed(key);
+  });
+  reg(key, v => paint(!!v, false));
+  return btn;
+}
+function tip(title, ...paras){ return h('div', {class:'tip'}, h('h3', {text:title}), paras.map(p => h('p', {text:p}))); }
+function head(title, sub){
+  return [h('div', {class:'tab'}), h('h2', {class:'title', text:title}), h('p', {class:'sub', text:sub}), h('hr', {class:'hr'})];
+}
+const FOOT = PAPER.foot || '© SOLENHQ · ' + PAPER.product + ' · For personal use only';
+function sheet(id, label, kids, extraFoot){
+  return h('article', {class:'sheet', 'data-sheet':id, 'data-label':label, id:'sheet-' + id, 'aria-label':label},
+    h('div', {class:'in'}, kids, h('p', {class:'foot'}, FOOT, extraFoot ? [h('br'), extraFoot] : null)));
+}
+// ================ shared building blocks for the papers after the 52-Week one ================
+// (the 52-Week paper keeps its own thermometer and coins; these are new and only loaded when a product asks)
+
+// ---------------- money and dates as people write them (US style) ----------------
+function readMoney(v){
+  if (v == null) return NaN;
+  const t = String(v).replace(/[$,\s]/g, '');
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? parseFloat(t) : NaN;   // "1,250.50", "$300", "40" - anything else is left out
+}
+function showMoney(n, cents){
+  const r = Math.round(n * 100) / 100, frac = cents || Math.abs(r % 1) > .001;
+  return (r < 0 ? '-$' : '$') + Math.abs(r).toLocaleString('en-US', {minimumFractionDigits:frac ? 2 : 0, maximumFractionDigits:2});
+}
+const MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+function readDate(v){
+  // "Nov 3", "Nov 3, 2026", "11/3", "11/3/26" -> {m: 0-11, d, y|null}; anything else -> null
+  if (!v) return null;
+  const t = String(v).trim().toLowerCase();
+  let m = t.match(/^([a-z]{3})[a-z]*\.?\s+(\d{1,2})(?:,?\s*(\d{2,4}))?$/);
+  if (m && MON.includes(m[1])) return {m:MON.indexOf(m[1]), d:+m[2], y:m[3] ? +(m[3].length === 2 ? '20' + m[3] : m[3]) : null};
+  m = t.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
+  if (m && +m[1] >= 1 && +m[1] <= 12) return {m:+m[1] - 1, d:+m[2], y:m[3] ? +(m[3].length === 2 ? '20' + m[3] : m[3]) : null};
+  return null;
+}
+const monthName = d => d.toLocaleDateString('en-US', {month:'short', year:'numeric'});    // "Nov 2026"
+function sameMonth(dateText, monthText){
+  // does a written date ("Nov 3") fall in a written month ("Nov 2026")? A date without a year counts as that year
+  const a = readDate(dateText), b = String(monthText || '').trim().toLowerCase().match(/^([a-z]{3})[a-z]*\.?\s*(\d{4})?$/);
+  return !!(a && b && MON.indexOf(b[1]) === a.m && (!a.y || !b[2] || +b[2] === a.y));
+}
+
+// ---------------- which tab page is in front, kept apart from the paper (a per-device convenience) ----------------
+const TKEY = KEY + '-tabs';
+function tabMem(sheetId, v){
+  try {
+    const o = JSON.parse(localStorage.getItem(TKEY) || '{}');
+    if (v === undefined) return o[sheetId];
+    o[sheetId] = v; localStorage.setItem(TKEY, JSON.stringify(o));
+  } catch (e) {}
+  return v;
+}
+
+// ---------------- index tabs: one page per debt / fund / month on one sheet ----------------
+// list() -> [{id, label, done?}] in order; build(id) -> the page's content (built once, the first time it is needed)
+function tabs(o){
+  const bar = h('div', {class:'tabs', role:'tablist', 'aria-label':o.label});
+  const holder = h('div', {class:'tabpages'});
+  const pages = new Map();
+  let front = tabMem(o.id) || null;
+  function page(id){
+    if (!pages.has(id)){
+      const el = h('div', {class:'tabpage', 'data-page':id, role:'tabpanel', hidden:true}, o.build(id));
+      pages.set(id, el); holder.append(el);
+      render(); if (o.onBuild) o.onBuild(id);
+    }
+    return pages.get(id);
+  }
+  function paint(){
+    const list = o.list();
+    if (!list.some(t => t.id === front)) front = list.length ? list[0].id : null;
+    bar.replaceChildren(...list.map(t => h('button', {class:'ptab' + (t.id === front ? ' on' : '') + (t.done ? ' done' : ''),
+      type:'button', role:'tab', 'aria-selected':t.id === front ? 'true' : 'false', onclick:() => show(t.id, true)},
+      t.label, t.done ? h('span', {class:'tick-mark', 'aria-hidden':'true', text:' ✓'}) : null)));
+    if (o.plus && o.plus.show()) bar.append(h('button', {class:'ptab plus', type:'button', onclick:o.plus.add}, o.plus.label));
+    for (const [k, el] of pages) el.hidden = k !== front;
+    if (front){
+      if (holder.classList.contains('empty')){ holder.classList.remove('empty'); holder.replaceChildren(...pages.values()); }
+      page(front).hidden = false;
+    } else {
+      holder.classList.add('empty');
+      if (o.empty) holder.replaceChildren(o.empty());
+    }
+  }
+  function show(id, remember){
+    front = id; if (remember) tabMem(o.id, id);
+    paint();
+  }
+  return {el:[bar, holder], paint, show, front:() => front, page, pages, built:() => [...pages.keys()]};
+}
+
+// ---------------- a small paper slip of choices under a cell ----------------
+let openSlip = null;
+function slip(anchor, items, onPick, o = {}){
+  // o.grid: the choices in a grid (months); an item with wide:true spans the whole slip
+  closeSlip();
+  const box = h('div', {class:'slip' + (o.grid ? ' grid' : ''), role:'listbox', 'aria-label':o.label});
+  if (o.cols) box.style.gridTemplateColumns = `repeat(${o.cols},minmax(0,1fr))`;
+  items.forEach(it => box.append(h('button', {class:'slipopt' + (it.muted ? ' muted' : '') + (it.wide ? ' wide' : '') + (it.on ? ' on' : ''), type:'button', role:'option',
+    onclick:e => { e.stopPropagation(); closeSlip(); onPick(it.value); }}, it.label)));
+  const sh = anchor.closest('.sheet');
+  sh.append(box);
+  const a = anchor.getBoundingClientRect(), s = sh.getBoundingClientRect();
+  box.style.top = (a.bottom - s.top + 4) + 'px';
+  box.style.left = Math.max(8, Math.min(a.left - s.left, s.width - box.offsetWidth - 8)) + 'px';
+  openSlip = box;
+  const first = box.querySelector('.slipopt'); if (first) first.focus({preventScroll:true});
+}
+function closeSlip(){ if (openSlip){ openSlip.remove(); openSlip = null; } }
+document.addEventListener('pointerdown', e => { if (openSlip && !openSlip.contains(e.target)) closeSlip(); }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSlip(); });
+
+// ---------------- check boxes of which only one can be ticked ----------------
+function oneOf(key, choices){
+  // choices: [[value, label], ...]; the value is stored in S.f[key]
+  const btns = choices.map(([v, label]) => {
+    const b = h('button', {class:'choice', type:'button', 'aria-pressed':'false'},
+      s('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true'}, s('rect', {x:5, y:5, width:14, height:14, class:'sq'}),
+        s('path', {d:'M4 12.8 9.2 18 20.5 4.8', class:'tick', pathLength:'1'})), h('span', {text:label}));
+    b.addEventListener('click', () => {
+      if (eatDismissTap()) return;
+      setF(key, S.f[key] === v ? undefined : v); paint(true); changed(key);
+    });
+    return [v, b];
+  });
+  function paint(anim){
+    btns.forEach(([v, b]) => {
+      const on = S.f[key] === v;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.classList.toggle('on', on);
+      if (anim && on && !REDUCED) b.querySelector('.tick').animate([{strokeDashoffset:1}, {strokeDashoffset:0}], {duration:260});
+    });
+  }
+  reg(key, () => paint(false));
+  return h('div', {class:'oneof'}, btns.map(x => x[1]));
+}
+
+// ---------------- a write-in line that writes itself once (a date when a box is ticked, a total) ----------------
+// shows `text()` in handwriting until the buyer writes something of their own on it
+function autoInk(key, text, o = {}){
+  const el = ink(key, o);
+  const ghost = () => { if (!S.f[key]) el.placeholder = text() || ''; };
+  el.classList.add('autoink');
+  reg(key, ghost);
+  return el;
+}
+
+// ---------------- a ledger: a ruled table whose rows fold onto two lines on a phone ----------------
+// cols: [{key, label, wide (fr), line (1|2|3), span (narrow columns out of o.ncol, default 6), type, ...}]
+// types: 'ink' | 'money' | 'rank' | 'check' | 'pick' | 'auto'; rows: count, or {min, grow:true, max}
+function ledger(o){
+  const wide = o.cols.map(c => c.wide + 'fr').join(' ');
+  const areas = [...new Set(o.cols.map(c => c.line))].sort().map(line => {
+    const cells = [];
+    o.cols.filter(c => c.line === line).forEach((c, i) => { for (let k = 0; k < c.span; k++) cells.push('c' + o.cols.indexOf(c)); });
+    return '"' + cells.join(' ') + '"';
+  }).join(' ');
+  const style = `--wide:${wide};--areas:${areas};--ncol:${o.ncol || 6};--wide-areas:"${o.cols.map((c, i) => 'c' + i).join(' ')}"`;
+  const headRow = h('div', {class:'lrow lhead', style}, o.cols.map((c, i) =>
+    h('span', {class:'lcell' + (c.line > 1 ? ' l2' : ''), style:`grid-area:c${i}`, text:c.label})));
+  const rows = [];
+  const max = typeof o.rows === 'number' ? o.rows : o.rows.max;
+  for (let r = 1; r <= max; r++){
+    const row = h('div', {class:'lrow', style, 'data-row':r},
+      o.cols.map((c, i) => h('div', {class:'lcell lc-' + c.type + (c.line > 1 ? ' l2' : ''), style:`grid-area:c${i}`}, cell(c, r))));
+    rows.push(row);
+  }
+  function cell(c, r){
+    const key = `${o.prefix}.${c.key}.${r}`;
+    if (c.type === 'ink' || c.type === 'money'){
+      return ink(key, {label:`${c.label} ${r}`, max:c.max || (c.type === 'money' ? 12 : 30),
+        mode:c.type === 'money' ? 'decimal' : null, cap:c.cap, onInput:c.onInput ? v => c.onInput(r, v) : null});
+    }
+    if (c.type === 'custom') return c.render(r);
+    if (c.type === 'auto'){
+      const out = h('span', {class:'auto-cell', 'data-key':key});
+      reg(`${o.prefix}.__auto.${c.key}.${r}`, () => { out.textContent = c.value(r) || ''; });
+      return out;
+    }
+    if (c.type === 'check') return checkbox(key, `${c.label} ${r}`, c.onToggle ? on => c.onToggle(r, on) : null);
+    if (c.type === 'rank'){
+      const b = h('button', {class:'rank', type:'button', 'aria-label':`${c.label} ${r}`});
+      b.addEventListener('click', () => {
+        if (eatDismissTap()) return;
+        if (S.f[key]) setF(key, undefined);
+        else {
+          const used = new Set(rows.map((_, i) => S.f[`${o.prefix}.${c.key}.${i + 1}`]).filter(Boolean));
+          let n = 1; while (used.has(n)) n++;
+          setF(key, n);
+        }
+        FIELDS.get(key)(S.f[key]); changed(key);
+      });
+      reg(key, v => { b.textContent = v ? String(v) : ''; b.classList.toggle('on', !!v); });
+      return b;
+    }
+    if (c.type === 'pick'){
+      const b = h('button', {class:'pick', type:'button', 'aria-label':`${c.label} ${r}`});
+      b.addEventListener('click', e => {
+        if (eatDismissTap()) return;
+        e.stopPropagation();
+        slip(b, c.options(r), v => {
+          if (v === '__write'){ setF(key, undefined); const w = c.write(r); if (w) w(); }
+          else setF(key, v === '__clear' ? undefined : v);
+          FIELDS.get(key)(S.f[key]); changed(key);
+          if (c.onPick) c.onPick(r, S.f[key]);
+        }, c.slip || {});
+      });
+      reg(key, v => { const t = v ? c.show(v, r) : ''; b.textContent = t; b.classList.toggle('on', !!t); });
+      return b;
+    }
+    return h('span');
+  }
+  const table = h('div', {class:'ledger'}, headRow, rows);
+  function fit(){
+    // a growing ledger shows its minimum rows, and always a few empty ones after the last used row
+    if (typeof o.rows === 'number') return;
+    let last = 0;
+    for (let r = 1; r <= max; r++) if (o.cols.some(c => S.f[`${o.prefix}.${c.key}.${r}`] !== undefined)) last = r;
+    const show = Math.min(max, Math.max(o.rows.min, last + (o.rows.spare || 3)));
+    rows.forEach((row, i) => { row.hidden = i >= show; });
+  }
+  return {el:table, rows, fit, repaintAutos(){ for (const [k, p] of FIELDS) if (k.startsWith(`${o.prefix}.__auto.`)) p(); }};
+}
+
+// ---------------- a count grid: N numbered bubbles (or cards) colored "up to here" ----------------
+// o: {prefix, n, label(i) -> text, shape:'bubble'|'card'|'coin'|'icon' (+ icon:{fill, line}), crossFrom(): index after which items are crossed out,
+//     guide(): index of a dashed ring, onLevel(level)}; stored like the thermometer: prefix.bands = [[upTo, pencil], ...]
+function countGrid(o){
+  const key = o.prefix + '.bands';
+  const grid = h('div', {class:'cgrid cg-' + (o.shape || 'bubble'), role:'slider', tabindex:'0', 'aria-label':o.label,
+    'aria-valuemin':'0', 'aria-valuemax':String(o.n)});
+  const items = [];
+  for (let i = 1; i <= o.n; i++){
+    const shape = o.shape === 'card'
+      ? [s('rect', {class:'fillshape', x:8, y:20, width:84, height:60, rx:9}), s('rect', {class:'stripe', x:8, y:32, width:84, height:9}),
+         s('rect', {class:'rim', x:8, y:20, width:84, height:60, rx:9})]
+      : o.shape === 'icon'               // an outline picture with its number underneath, like the printable
+      ? [s('g', {transform:'translate(14 0) scale(.72)'}, s('path', {class:'fillshape', d:o.icon.fill}), s('path', {class:'rim', d:o.icon.line}))]
+      : o.shape === 'coin'
+      ? [s('circle', {class:'fillshape', cx:50, cy:50, r:41}), s('circle', {class:'rim', cx:50, cy:50, r:42}), s('circle', {class:'rim inner', cx:50, cy:50, r:33})]
+      : [s('circle', {class:'fillshape', cx:50, cy:50, r:41}), s('circle', {class:'rim', cx:50, cy:50, r:42})];
+    const lab = o.label(i);
+    const size = o.shape === 'icon' ? 17 : lab.length >= 6 ? 21 : lab.length === 5 ? 24 : lab.length === 4 ? 27 : 30;
+    const svg = s('svg', {viewBox:'0 0 100 100', 'aria-hidden':'true'}, shape,
+      s('text', {class:'clabel', x:50, y:o.shape === 'icon' ? 95 : (o.shape === 'card' ? 64 : 50) + size * .36, style:`font-size:${size}px`}, lab),
+      s('path', {class:'cross', d:'M24 24 76 76M76 24 24 76'}), s('circle', {class:'ring', cx:50, cy:50, r:47}));
+    const it = h('div', {class:'citem', 'data-i':i}, svg);
+    items.push(it); grid.append(it);
+  }
+  const bands = () => (Array.isArray(S.f[key]) ? S.f[key] : []).filter(b => Array.isArray(b) && b[0] > 0);
+  const level = () => { const b = bands(); return b.length ? b[b.length - 1][0] : 0; };
+  let pending = null;
+  function paint(grow){
+    const b = bands(), cross = o.crossFrom ? o.crossFrom() : Infinity, guide = o.guide ? o.guide() : 0;
+    let bi = 0;
+    items.forEach((it, idx) => {
+      const i = idx + 1;
+      while (bi < b.length && b[bi][0] < i) bi++;
+      const c = bi < b.length ? b[bi][1] : null;
+      it.classList.toggle('on', !!c);
+      it.style.setProperty('--fill', c ? pencil(c).c : 'transparent');
+      it.classList.toggle('crossed', i > cross);
+      it.classList.toggle('guide', i === guide && !c);
+      it.classList.toggle('pend', !!pending && i === pending.k);
+      if (grow && c && i > grow.from && i <= grow.to && !REDUCED)
+        it.animate([{opacity:.2, transform:'scale(.85)'}, {opacity:1, transform:'none'}],
+          {duration:220, delay:Math.min(500, (i - grow.from) * 12), fill:'backwards'});
+    });
+    grid.setAttribute('aria-valuenow', String(level()));
+    grid.setAttribute('aria-valuetext', `${level()} of ${o.n} colored`);
+  }
+  function setLevel(k){
+    const before = level();
+    let b = bands();
+    if (k > before){
+      const last = b[b.length - 1];
+      if (last && last[1] === S.pencil) last[0] = k; else b.push([k, S.pencil]);
+    } else {
+      b = b.filter((band, i) => i === 0 ? true : b[i - 1][0] < k);
+      if (b.length) b[b.length - 1][0] = Math.min(b[b.length - 1][0], k);
+      b = b.filter(band => band[0] > 0);
+    }
+    setF(key, b);
+    paint(k > before ? {from:before, to:k} : null);
+    if (o.onLevel) o.onLevel(level(), before);
+    try { navigator.vibrate && navigator.vibrate(8); } catch (e) {}
+    changed(key);
+  }
+  function tapAt(k){
+    const L = level(), cross = o.crossFrom ? o.crossFrom() : Infinity;
+    if (k > cross) return;
+    if (k === L){ setLevel(k - 1); return; }
+    if (k < L && L - k > 5){
+      if (pending && pending.k === k){ clearTimeout(pending.t); pending = null; setLevel(k); return; }
+      if (pending) clearTimeout(pending.t);
+      pending = {k, t:setTimeout(() => { pending = null; paint(); hideAsk(); }, 3000)};
+      paint(); showAsk(`Tap ${o.label(k)} again to erase down to it`, 3000);
+      return;
+    }
+    pending = null;
+    setLevel(k);
+  }
+  grid.addEventListener('click', e => {
+    if (eatDismissTap()) return;
+    const it = e.target.closest('.citem'); if (!it) return;
+    tapAt(+it.dataset.i);
+  });
+  grid.addEventListener('keydown', e => {
+    const L = level(), step = {ArrowUp:1, ArrowRight:1, ArrowDown:-1, ArrowLeft:-1, PageUp:10, PageDown:-10}[e.key];
+    if (step){ e.preventDefault(); setLevel(Math.max(0, Math.min(o.n, L + step))); }
+    else if (e.key === 'Home'){ e.preventDefault(); setLevel(0); }
+    else if (e.key === 'End'){ e.preventDefault(); setLevel(o.n); }
+  });
+  reg(key, () => paint());
+  return {el:grid, paint, level};
+}
+
+// ---------------- a fill thermometer with a written goal (20 lines of 5%) ----------------
+// o: {prefix, goal() -> number|NaN, label, onLevel(pct, before)}; keys prefix.start (START bulb pencil), prefix.bands
+let thermUid = 0;
+function fillTherm(o){
+  const VBW = 240, x0 = 70, TW = 52, half = TW / 2, R = TW * .85, SEG = 21, N = 20, cap = 40, U = SEG * N / 100;
+  const joint = cap + N * SEG, y0 = joint + Math.sqrt(R * R - half * half), bottom = y0 + R;
+  const yOf = p => joint - p * U, clipId = 'thermClip' + (++thermUid), startKey = o.prefix + '.start', bandKey = o.prefix + '.bands';
+  const svg = s('svg', {class:'therm', viewBox:`0 0 ${VBW} ${Math.ceil(bottom + 8)}`, role:'slider', tabindex:'0',
+    'aria-label':o.label, 'aria-valuemin':'0', 'aria-valuemax':'100', 'aria-orientation':'vertical'});
+  const outline = `M${x0} ${joint}L${x0} ${cap}A${half} ${half} 0 0 1 ${x0 + TW} ${cap}L${x0 + TW} ${joint}` +
+                  `A${R} ${R} 0 1 1 ${x0} ${joint}Z`;
+  svg.append(s('defs', null, s('clipPath', {id:clipId, clipPathUnits:'userSpaceOnUse'}, s('path', {d:outline}))));
+  const fills = s('g', {'clip-path':`url(#${clipId})`, filter:'url(#grainT)'});
+  const bulb = s('rect', {x:x0 + half - R - 2, y:joint - .3, width:2 * R + 4, height:bottom - joint + 3, opacity:'0'});
+  const bandsG = s('g');
+  fills.append(bulb, bandsG);
+  svg.append(s('rect', {x:0, y:0, width:VBW, height:Math.ceil(bottom + 8), fill:'transparent'}), fills, s('path', {class:'outline', d:outline}));
+  svg.append(s('line', {class:'seg', x1:x0 + 1.5, x2:x0 + TW - 1.5, y1:joint, y2:joint}));
+  const usd = [];
+  for (let k = 1; k <= N; k++){
+    const y = joint - k * SEG, major = k % 5 === 0;
+    const t = s('text', {class:'usd hand' + (major ? ' major' : ''), x:x0 + TW + 11, y:y + 4});
+    usd.push(t);
+    svg.append(s('line', {class:'seg', x1:x0 + 1.5, x2:x0 + TW - 1.5, y1:y, y2:y}),
+      s('line', {class:'tickm', x1:x0 + TW, x2:x0 + TW + 6, y1:y, y2:y}),
+      s('text', {class:'pct' + (major ? ' major' : ''), x:x0 - 7, y:y + 4, 'text-anchor':'end'}, `${k * 5}%`), t);
+  }
+  svg.append(s('text', {class:'startl', x:x0 + half, y:y0 + 4.5, 'text-anchor':'middle'}, 'START'));
+  const guideL = s('line', {class:'pv guide', x1:x0 - 4, x2:x0 + TW + 4, y1:0, y2:0, display:'none'});
+  const pv = s('line', {class:'pv', x1:x0 - 4, x2:x0 + TW + 4, y1:0, y2:0, display:'none'});
+  svg.append(guideL, pv);
+  const getBands = () => Array.isArray(S.f[bandKey]) ? S.f[bandKey].filter(b => Array.isArray(b) && b[0] > 0) : [];
+  const level = () => { const b = getBands(); return b.length ? b[b.length - 1][0] : 0; };
+  const fmtP = p => (Math.round(p * 10) / 10).toString().replace(/\.0$/, '');
+  const band = (a, b, c) => {
+    const r = s('rect', {x:x0 - 1, y:yOf(b), width:TW + 2, height:yOf(a) - yOf(b) + .4});
+    r.style.fill = pencil(c).c; bandsG.append(r); return r;
+  };
+  function paint(grow){
+    const st = S.f[startKey], g = o.goal();
+    bulb.setAttribute('opacity', st ? '1' : '0');
+    if (st) bulb.style.fill = pencil(st).c;
+    bandsG.replaceChildren();
+    const cut = grow && !REDUCED ? grow.from : Infinity;
+    let from = 0;
+    getBands().forEach(([to, c]) => { const top = Math.min(to, cut); if (top > from) band(from, top, c); from = to; });
+    if (cut !== Infinity && grow.to > grow.from){
+      const r = band(grow.from, grow.to, S.pencil);
+      r.style.transformBox = 'fill-box'; r.style.transformOrigin = '50% 100%';
+      settle(r.animate([{transform:'scaleY(0)'}, {transform:'scaleY(1)'}], {duration:380, easing:'cubic-bezier(.3,.7,.3,1)'}), 380)
+        .then(() => paint(false));
+    }
+    usd.forEach((t, i) => { t.textContent = g > 0 ? showMoney(g * (i + 1) / N, true) : ''; });   // always with cents, like the printable
+    const gp = o.guide ? o.guide() : NaN;
+    if (gp > 0 && gp <= 100){ guideL.setAttribute('y1', yOf(gp)); guideL.setAttribute('y2', yOf(gp)); guideL.setAttribute('display', ''); }
+    else guideL.setAttribute('display', 'none');
+    const L = level();
+    svg.setAttribute('aria-valuenow', String(Math.round(L)));
+    svg.setAttribute('aria-valuetext', !st ? 'Not started' : L ? `Colored to ${fmtP(L)}%` : 'START bulb colored');
+  }
+  function setLevel(p, grow){
+    const before = S.f[startKey] ? level() : -1, was = level();
+    if (!S.f[startKey]) S.f[startKey] = S.pencil;
+    let b = getBands();
+    if (p > was){
+      const last = b[b.length - 1];
+      if (last && last[1] === S.pencil) last[0] = p; else b.push([p, S.pencil]);
+    } else {
+      b = b.filter((x, i) => i === 0 ? true : b[i - 1][0] < p);
+      if (b.length) b[b.length - 1][0] = Math.min(b[b.length - 1][0], p);
+      b = b.filter(x => x[0] > 0);
+    }
+    setF(bandKey, b);
+    if (o.onLevel) o.onLevel(p, before);            // before = -1: this tap also colored the START bulb
+    paint(grow && p > was ? {from:was, to:p} : false);
+    changed(bandKey);
+  }
+  let pending = null;
+  function clearPending(){ if (pending){ clearTimeout(pending.t); pending = null; pv.setAttribute('display', 'none'); hideAsk(); } }
+  function tapAt(p){
+    const L = level(), started = !!S.f[startKey];
+    if (p < 0){
+      if (!started){ S.f[startKey] = S.pencil; if (o.onLevel) o.onLevel(0, -1); paint(false); changed(startKey); return; }
+      if (L === 0){ delete S.f[startKey]; paint(false); changed(startKey); return; }
+      p = 0;
+    }
+    const gp = o.guide ? o.guide() : NaN;
+    if (gp > 0 && Math.abs(p - gp) <= 2) p = Math.round(gp * 2) / 2;       // a tap near the guide line snaps to it
+    if (started && Math.abs(p - L) < .5) return;
+    if (p < L && L - p > 5){
+      if (pending && Math.abs(pending.p - p) <= 3){ const q = pending.p; clearPending(); setLevel(q, false); return; }
+      clearPending();
+      pending = {p, t:setTimeout(clearPending, 3000)};
+      pv.setAttribute('y1', yOf(p)); pv.setAttribute('y2', yOf(p)); pv.setAttribute('display', '');
+      showAsk(p === 0 ? 'Tap there again to erase it all' : `Tap there again to erase down to ${fmtP(p)}%`, 3000);
+      return;
+    }
+    clearPending();
+    setLevel(p, p > L);
+  }
+  svg.addEventListener('click', e => {
+    if (eatDismissTap() || e.detail === 0) return;
+    const m = svg.getScreenCTM(); if (!m) return;
+    const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    const y = pt.matrixTransform(m.inverse()).y;
+    if (y > joint + 2) return tapAt(-1);
+    tapAt(Math.max(.5, Math.min(100, Math.round((joint - y) / U * 2) / 2)));
+  });
+  svg.addEventListener('keydown', e => {
+    const L = level(), step = {ArrowUp:1, ArrowRight:1, ArrowDown:-1, ArrowLeft:-1, PageUp:5, PageDown:-5}[e.key];
+    if (step){ e.preventDefault(); if (!S.f[startKey]) return tapAt(-1); setLevel(Math.max(0, Math.min(100, Math.round(L + step))), step > 0); }
+  });
+  reg(startKey, () => paint(false));
+  reg(bandKey, () => paint(false));
+  return {el:svg, paint, level};
+}
+// ---------------- Bill Tracker: three sheets ----------------
+// My Bills owns each bill (name, due day, usual amount, autopay). Each month page lists those bills: tick one when it's
+// paid and the date writes itself. The Year shows the same ticks for all 12 months (tap there too: it's the same box).
+const ROWS = 20;
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const cut = v => isNaN(v) ? '' : showMoney(v).replace('$', '');
+const billName = r => (S.f[`bills.name.${r}`] || '').trim();
+const hasBill = r => !!billName(r);
+const usual = r => readMoney(S.f[`bills.amt.${r}`]);
+function year(){ const y = parseInt(S.f['bills.year'], 10); return y >= 2000 && y <= 2100 ? y : new Date().getFullYear(); }
+const paidKey = (m, r) => `months.m${m}.paid.${r}`;
+function amountFor(m, r){ const a = readMoney(S.f[`months.m${m}.amt.${r}`]); return isNaN(a) ? usual(r) : a; }
+function dueDate(m, r){
+  const d = parseInt(S.f[`bills.due.${r}`], 10);
+  if (!(d >= 1 && d <= 31)) return null;
+  return new Date(year(), m - 1, Math.min(d, new Date(year(), m, 0).getDate()));
+}
+function late(m, r){
+  const due = dueDate(m, r); if (!due || S.f[paidKey(m, r)]) return false;
+  const t = new Date(); t.setHours(0, 0, 0, 0); return t > due;
+}
+const md = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+// a tick writes today's date (on the month page or the year page: it's the same box); unticking the same day takes it back
+function stampPaid(m, r, isOn){
+  const k = `months.m${m}.on.${r}`, ak = `months.m${m}.onauto.${r}`;
+  if (isOn && !S.f[k]){ S.f[k] = md(new Date()); S.f[ak] = true; }
+  else if (!isOn && S.f[ak] && S.f[k] === md(new Date())){ delete S.f[k]; delete S.f[ak]; }
+  const f = FIELDS.get(k); if (f) f(S.f[k]);
+}
+
+// ================ 1. My Bills ================
+let billLedger;
+const billOut = {};
+function sheetBills(){
+  billLedger = ledger({prefix:'bills', rows:{min:8, spare:3, max:ROWS}, cols:[
+    {key:'name', label:'Bill', type:'ink', wide:30, line:1, span:4, max:24, cap:'words'},
+    {key:'due', label:'Due day', type:'money', wide:12, line:1, span:2, max:2},
+    {key:'amt', label:'Usual $', type:'money', wide:16, line:2, span:2},
+    {key:'auto', label:'Autopay', type:'check', wide:12, line:2, span:1},
+    {key:'how', label:'How I pay', type:'ink', wide:30, line:2, span:3, max:20}]});
+  const [tRow, tOut] = autoBlank('Bills a month: $', 'bills.__total');
+  const [nRow, nOut] = autoBlank('Number of bills:', 'bills.__count');
+  Object.assign(billOut, {tOut, nOut});
+  return sheet('bills', 'My Bills', [
+    head('My Bills', 'List every bill once: its due day (1 to 31), the usual amount, autopay or not, and how you pay. ' +
+      'Your month pages fill in from this list. Never write account numbers or passwords here.'),
+    h('div', {class:'blanks'}, h('label', {class:'blank'}, h('span', {class:'lbl', text:'Year:'}),
+      autoInk('bills.year', () => String(new Date().getFullYear()), {label:'Year', mode:'numeric', max:4}))),
+    h('div', {style:'margin-top:14px'}, billLedger.el),
+    h('div', {class:'blanks stats', style:'margin-top:16px'}, tRow, nRow),
+    h('div', {style:'margin-top:16px'}, tip('Good to know', 'A bill that changes each month (like electric)? Write its usual amount ' +
+      'here and the real amount on its month page.', 'A bill due on the 31st falls on the last day of shorter months.'))],
+    'For personal budgeting only. Not financial advice.');
+}
+
+// ================ 2. My Months: one page per month, behind tabs ================
+let monthTabs;
+const monthEls = {};
+function monthPage(pg){
+  const m = +pg.slice(1), rows = [];
+  for (let r = 1; r <= ROWS; r++){
+    const name = h('span', {class:'bname'}), due = h('span', {class:'auto-cell'});
+    const amt = autoInk(`months.m${m}.amt.${r}`, () => cut(usual(r)), {label:`${MONTHS[m - 1]}: amount ${r}`, mode:'decimal', max:10});
+    const on = ink(`months.m${m}.on.${r}`, {label:`${MONTHS[m - 1]}: paid on ${r}`, max:8, onInput:() => { delete S.f[`months.m${m}.onauto.${r}`]; }});
+    const box = checkbox(paidKey(m, r), `${MONTHS[m - 1]}: paid ${r}`, isOn => stampPaid(m, r, isOn));
+    const row = h('div', {class:'brow', 'data-row':r}, h('span', {class:'bcell bn'}, name, h('span', {class:'flag', text:'late'})),
+      h('span', {class:'bcell'}, due), h('span', {class:'bcell'}, amt), h('span', {class:'bcell'}, on), h('span', {class:'bcell'}, box));
+    rows.push({r, row, name, due});
+  }
+  const [tRow, tOut] = autoBlank('Bills total: $', `months.m${m}.__total`);
+  const [pRow, pOut] = autoBlank('Paid so far: $', `months.m${m}.__paid`);
+  const [lRow, lOut] = autoBlank('Still to pay: $', `months.m${m}.__left`);
+  const unpaid = h('p', {class:'pencilnote'});
+  const empty = h('p', {class:'pencilnote', text:'List your bills on My Bills, and they appear here.'});
+  monthEls[pg] = {m, rows, tOut, pOut, lOut, unpaid, empty};
+  return [h('h3', {class:'pagetitle', text:MONTHS[m - 1]}),
+    h('p', {class:'sub', style:'margin:6px 0 12px', text:'Tick a bill when it\'s paid: the date writes itself. Change the amount if this ' +
+      'month\'s bill is different. A bill past its due day and not ticked is marked late.'}),
+    h('div', {class:'btable'}, h('div', {class:'brow bhead'}, ['Bill', 'Due', 'Amount $', 'Paid on', 'Paid'].map(t => h('span', {class:'bcell', text:t}))),
+      rows.map(x => x.row)), empty,
+    h('div', {class:'blanks stats', style:'margin-top:16px'}, tRow, pRow, lRow), unpaid];
+}
+function paintMonth(pg){
+  const e = monthEls[pg]; if (!e) return;
+  let total = 0, paid = 0, any = false; const left = [];
+  e.rows.forEach(({r, row, name, due}) => {
+    const show = hasBill(r);
+    row.hidden = !show;
+    if (!show) return;
+    any = true;
+    name.textContent = billName(r);
+    const dd = dueDate(e.m, r); due.textContent = dd ? md(dd) : '';
+    row.classList.toggle('late', late(e.m, r));
+    const a = amountFor(e.m, r);
+    if (!isNaN(a)){ total += a; if (S.f[paidKey(e.m, r)]) paid += a; }
+    if (!S.f[paidKey(e.m, r)]) left.push(billName(r));
+    FIELDS.get(`months.m${e.m}.amt.${r}`)(S.f[`months.m${e.m}.amt.${r}`]);
+  });
+  e.empty.hidden = any;
+  e.tOut.textContent = any ? cut(total) : ''; e.pOut.textContent = any ? cut(paid) : ''; e.lOut.textContent = any ? cut(total - paid) : '';
+  e.unpaid.textContent = any ? (left.length ? 'Not paid yet: ' + left.join(', ') : 'Every bill paid this month!') : '';
+}
+function sheetMonths(){
+  const now = new Date();
+  monthTabs = tabs({id:'months', label:'Month pages', list:() => MONTHS.map((n, i) => ({id:'m' + (i + 1), label:n.slice(0, 3),
+    done:(() => { let any = false; for (let r = 1; r <= ROWS; r++) if (hasBill(r)){ any = true; if (!S.f[paidKey(i + 1, r)]) return false; } return any; })()})),
+    build:pg => monthPage(pg), onBuild:pg => paintMonth(pg)});
+  if (!tabMem('months')) monthTabs.show('m' + (now.getMonth() + 1), false);
+  return sheet('months', 'My Months', [
+    head('My Months', 'Tap a month. Your bills from My Bills are listed with their due dates; tick each one when it\'s paid. ' +
+      'A month with every bill paid gets a check on its tab.'),
+    monthTabs.el], 'For personal budgeting only. Not financial advice.');
+}
+
+// ================ 3. My Year: bills x 12 months ================
+const yearRows = [];
+let yearCounts = [];
+function sheetYear(){
+  const head1 = [h('span', {class:'yh'}, 'Bill')].concat(MONTHS.map(n => h('span', {class:'yh', text:n.slice(0, 3)})));
+  const rows = [];
+  for (let r = 1; r <= ROWS; r++){
+    const name = h('span', {class:'yn'});
+    const cells = MONTHS.map((n, i) => h('span', {class:'yc'}, checkbox(paidKey(i + 1, r), `${n}: bill ${r} paid`, isOn => stampPaid(i + 1, r, isOn))));
+    const row = h('div', {class:'yrow'}, name, cells);
+    yearRows.push({r, row, name}); rows.push(row);
+  }
+  yearCounts = MONTHS.map(() => h('span', {class:'ycount'}));
+  return sheet('year', 'My Year', [
+    head('My Year', 'Every bill, every month, on one page. These are the same boxes as on your month pages: tick here or there.'),
+    h('div', {class:'ygrid'}, h('div', {class:'yrow yhead'}, head1), rows,
+      h('div', {class:'yrow yfoot'}, h('span', {class:'yn', text:'Paid'}), yearCounts)),
+    h('p', {class:'pencilnote', style:'margin-top:10px', text:'Turn your phone sideways for a roomier year.'})],
+    'For personal budgeting only. Not financial advice.');
+}
+
+// ---------------- what changes everywhere when one thing changes ----------------
+function liveBT(){
+  // the year is written in once the first bill is listed, so the paper doesn't move to a new year by itself on January 1
+  if (!S.f['bills.year'] && hasBill(1)){ S.f['bills.year'] = String(new Date().getFullYear()); }
+  billLedger.fit();
+  let n = 0, t = 0;
+  for (let r = 1; r <= ROWS; r++) if (hasBill(r)){ n++; const a = usual(r); if (!isNaN(a)) t += a; }
+  billOut.nOut.textContent = n ? String(n) : ''; billOut.tOut.textContent = n ? cut(t) : '';
+  FIELDS.get('bills.year')(S.f['bills.year']);
+  monthTabs.paint();
+  Object.keys(monthEls).forEach(paintMonth);
+  yearRows.forEach(({r, row, name}) => { row.hidden = !hasBill(r); name.textContent = billName(r); });
+  // a tick on one page shows on the other (the year and the month pages share each box)
+  for (let m = 1; m <= 12; m++) for (let r = 1; r <= ROWS; r++){ const f = FIELDS.get(paidKey(m, r)); if (f) f(S.f[paidKey(m, r)]); }
+  yearCounts.forEach((c, i) => {
+    let p = 0; for (let r = 1; r <= ROWS; r++) if (hasBill(r) && S.f[paidKey(i + 1, r)]) p++;
+    c.textContent = n ? `${p}/${n}` : '';
+  });
+}
+PAPER.build = () => [sheetBills(), sheetMonths(), sheetYear()];
+PAPER.paint = liveBT;
+PAPER.live = liveBT;
+PAPER.scope = sh => {
+  if (sh.dataset.sheet === 'months' && monthTabs.front()){
+    const pg = monthTabs.front();
+    return {id:'months.' + pg, label:MONTHS[+pg.slice(1) - 1], note:'Its ticks also leave your Year. Your bills list stays.'};
+  }
+  if (sh.dataset.sheet === 'bills') return {id:'bills', label:'My Bills', note:'Your bills list goes; your month ticks stay but have no names until you list bills again.'};
+  return null;
+};
+PAPER.reveal = id => { if (id.startsWith('months.')) monthTabs.show(id.split('.')[1], true); };
+PAPER.beforePrint = () => {
+  const used = MONTHS.map((_, i) => 'm' + (i + 1)).filter(pg => Object.keys(S.f).some(k => k.startsWith(`months.${pg}.`)));
+  used.forEach(pg => { const el = monthTabs.page(pg); if (pg !== monthTabs.front()) el.classList.add('print-show'); });
+  MONTHS.forEach((_, i) => { const el = monthTabs.pages.get('m' + (i + 1)); if (el) el.parentNode.append(el); });   // calendar order
+  liveBT();
+};
+PAPER.afterPrint = () => monthTabs.pages.forEach(el => el.classList.remove('print-show'));
+const desk = document.getElementById('desk');
+const SHEETS = PAPER.build();
+desk.append(...SHEETS);
+const byId = id => document.getElementById('sheet-' + id);
+function refitAreas(){ AREAS.forEach(([el, n]) => fit(el, n)); }
+function paintAll(){ render(); if (PAPER.paint) PAPER.paint(); refitAreas(); }
+paintAll();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitAreas, () => {});
+let fitT; addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(refitAreas, 150); });
+
+// ---------------- notes on the desk ----------------
+const note = document.getElementById('note'), nosave = document.getElementById('nosave');
+function warn(t){
+  nosave.textContent = t || "This browser isn't keeping this paper, so what you write will be gone when you close it. " +
+    'Open the link in Safari or Chrome, and not in a private window. The folder can also save a copy as a file.';
+  nosave.hidden = false;
+}
+if (!canStore()) warn();
+else if (frozen) warn('This paper was saved by a newer version of this page. Close this tab and open the link again.');
+note.hidden = !!S.note;
+note.addEventListener('click', () => {
+  S.note = true; changed(); persist();
+  if (REDUCED){ note.hidden = true; return; }
+  note.animate([{transform:'rotate(2.2deg)', opacity:1}, {transform:'translate(60px,-90px) rotate(24deg)', opacity:0}],
+    {duration:420, easing:'cubic-bezier(.5,0,.8,.4)', fill:'forwards'});
+  settle(note.getAnimations(), 420).then(() => { note.hidden = true; note.getAnimations().forEach(a => a.cancel()); });
+});
+
+// ---------------- pencils ----------------
+const tools = document.getElementById('tools'), fan = document.getElementById('fan'), tPencil = document.getElementById('t-pencil');
+function pencilSVG(){
+  return s('svg', {viewBox:'0 0 120 20', 'aria-hidden':'true'},
+    s('rect', {x:22, y:3, width:90, height:14, rx:1.5, style:'fill:var(--pc)'}),
+    s('rect', {x:22, y:3, width:90, height:4.5, fill:'#fff', opacity:'.22'}),
+    s('rect', {x:110, y:3, width:8, height:14, rx:2, fill:'#C9CFCA'}),
+    s('path', {d:'M22 3 5 10l17 7z', fill:'#EBD2A5'}),
+    s('path', {d:'M10.5 7.7 5 10l5.5 2.3z', style:'fill:var(--pc)'}));
+}
+function showPencil(){
+  tPencil.style.setProperty('--pc', pencil(S.pencil).c);
+  document.getElementById('t-tray').style.setProperty('--pc', pencil(S.pencil).c);
+  fan.querySelectorAll('.pencil').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === S.pencil ? 'true' : 'false'));
+}
+function openFan(byKeyboard){
+  hideAsk(); if (typeof closeMenu === 'function') closeMenu(false);
+  fan.hidden = false; tPencil.setAttribute('aria-expanded', 'true');
+  if (byKeyboard){ const p = fan.querySelector('[aria-pressed="true"]'); if (p) p.focus(); }
+}
+function closeFan(refocus){
+  if (fan.hidden) return;
+  fan.hidden = true; tPencil.setAttribute('aria-expanded', 'false');
+  if (refocus) tPencil.focus({preventScroll:true});
+}
+PENCILS.forEach(p => fan.append(h('button', {class:'pencil', type:'button', 'data-id':p.id, style:`--pc:${p.c}`,
+  'aria-label':`${p.name} pencil`, onclick:() => { S.pencil = p.id; showPencil(); closeFan(true); changed(); say(`${p.name} pencil`); foldSoon(350); }},
+  pencilSVG(), h('span', {text:p.name}))));
+tPencil.addEventListener('click', e => { e.stopPropagation(); fan.hidden ? openFan(e.detail === 0) : closeFan(false); });
+tools.addEventListener('keydown', e => { if (e.key === 'Escape' && !fan.hidden){ e.preventDefault(); closeFan(true); } });
+tools.addEventListener('focusout', () => setTimeout(() => { if (!tools.contains(document.activeElement) && document.activeElement !== document.body) closeFan(false); }, 0));
+document.addEventListener('click', e => { if (!fan.hidden && !tools.contains(e.target)) closeFan(false); });
+showPencil();
+
+// on phones the tray steps aside while the keyboard is up, so it never covers the line under the pen;
+// closing the keyboard (also with Android's back gesture) puts the pen down and brings the tray back
+const vv = window.visualViewport;
+let vvTall = vv ? vv.height * vv.scale : 0, kbSeen = false;
+document.addEventListener('focusin', () => { if (COARSE && writing()){ tools.classList.add('away'); closeFan(false); } });
+document.addEventListener('focusout', () => setTimeout(() => { if (!writing()){ tools.classList.remove('away'); kbSeen = false; } }, 60));
+if (vv) vv.addEventListener('resize', () => {
+  const hh = vv.height * vv.scale;
+  if (!writing()){ vvTall = hh; return; }
+  if (hh < vvTall - 150) kbSeen = true;
+  else if (kbSeen && hh > vvTall - 60){ kbSeen = false; document.activeElement.blur(); }
+});
+
+// ---------------- which sheet is in front of the reader, and where they left off ----------------
+function currentSheet(){
+  let best = SHEETS[0], most = -1;
+  for (const sh of SHEETS){
+    const r = sh.getBoundingClientRect();
+    const seen = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+    if (seen > most){ most = seen; best = sh; }
+  }
+  return best;
+}
+function savePlace(){
+  try {
+    const sh = currentSheet();
+    localStorage.setItem(PKEY, JSON.stringify({id:sh.dataset.sheet, off:Math.round(-sh.getBoundingClientRect().top)}));
+  } catch (e) {}
+}
+function restorePlace(){
+  try {
+    const p = JSON.parse(localStorage.getItem(PKEY) || 'null'), sh = p && byId(p.id);
+    if (sh) scrollTo(0, sh.getBoundingClientRect().top + scrollY + Math.max(0, p.off | 0));
+  } catch (e) {}
+}
+try { history.scrollRestoration = 'manual'; } catch (e) {}
+let placeT, placed = false;
+function placeOnce(){ if (!placed){ placed = true; restorePlace(); } }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { refitAreas(); placeOnce(); }, placeOnce);
+setTimeout(placeOnce, 700);
+addEventListener('scroll', () => { clearTimeout(placeT); placeT = setTimeout(savePlace, 800); }, {passive:true});
+
+// ---------------- keeping tabs in step ----------------
+// only a tab that changed something writes; a tab that sat in the background re-reads before it shows
+function resync(){
+  if (dirty || busy || armed) return;
+  let raw; try { raw = localStorage.getItem(KEY); } catch (e) { return; }
+  if (raw === raw0) return;
+  S = load(); paintAll(); showPencil(); note.hidden = !!S.note; showTrash();
+}
+addEventListener('storage', e => { if (e.key === KEY) resync(); });
+addEventListener('pageshow', e => { if (e.persisted) resync(); });
+addEventListener('pagehide', () => { if (dirty) persist(); savePlace(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden'){ if (dirty) persist(); savePlace(); } else resync();
+});
+
+// ---------------- save: stamp ----------------
+const fx = document.getElementById('fx');
+document.getElementById('t-save').addEventListener('click', () => {
+  dirty = true;
+  const ok = persist();
+  if (!REDUCED) document.getElementById('stampBody').animate(
+    [{transform:'none'}, {transform:'translateY(5px) scale(.94)'}, {transform:'none'}],
+    {duration:260, easing:'ease-out'});
+  const r = currentSheet().getBoundingClientRect();
+  const m = h('div', {class:'mark' + (ok ? '' : ' bad'), 'aria-hidden':'true'},
+    ok ? 'SAVED' : 'NOT SAVED', h('span', {text:ok ? today() : 'this browser blocks saving'}));
+  m.style.top = Math.max(r.top, 0) + 6 + 'px';
+  m.style.right = Math.max(innerWidth - Math.min(r.right, innerWidth), 0) + 14 + 'px';
+  fx.append(m);
+  say(ok ? `Saved, ${today()}` : 'Not saved. This browser blocks saving.');
+  const a = REDUCED
+    ? m.animate([{opacity:.86}, {opacity:.86, offset:.8}, {opacity:0}], {duration:2200})
+    : m.animate([{opacity:0, transform:'scale(1.7) rotate(-15deg)'}, {opacity:.9, transform:'scale(.95) rotate(-9deg)', offset:.14},
+        {opacity:.86, transform:'scale(1) rotate(-9deg)', offset:.22}, {opacity:.86, transform:'scale(1) rotate(-9deg)', offset:.82},
+        {opacity:0, transform:'scale(1) rotate(-9deg)'}], {duration:2400, easing:'ease-out'});
+  settle(a, 2400).then(() => m.remove());
+  foldSoon(1400);
+});
+
+// ---------------- print: every sheet on its own page ----------------
+// (a page shown inside another page, like a preview frame, often cannot open the print dialog: no button there)
+const tPrint = document.getElementById('t-print');
+let framed = true;
+try { framed = window.self !== window.top; } catch (e) {}
+if (/[?&]tools=1(&|$)/.test(location.search)) framed = false;   // listing screenshots taken in a test frame
+tPrint.hidden = framed || typeof window.print !== 'function';
+function readyToPrint(){
+  closeFan(false); disarm(); if (writing()) document.activeElement.blur();
+  if (PAPER.beforePrint) PAPER.beforePrint();      // e.g. every tab page with something on it gets its own printed page
+  refitAreas();
+}
+addEventListener('afterprint', () => { if (PAPER.afterPrint) PAPER.afterPrint(); });
+addEventListener('beforeprint', readyToPrint);
+tPrint.addEventListener('click', () => { readyToPrint(); try { window.print(); } catch (e) {} foldSoon(300); });
+
+// ---------------- folder: keep a copy of the paper as a file, and open it again ----------------
+// the copy is the buyer's own file (Files app, Downloads ...), so a new phone or cleared browser data loses nothing
+const COPY_KIND = 'solenhq-paper', COPY_PAPER = PAPER.copyId;
+const tFolder = document.getElementById('t-folder'), menu = document.getElementById('menu'), copyFile = document.getElementById('copyFile');
+tFolder.hidden = framed;
+const shortDate = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+function copyText(){
+  return JSON.stringify({kind:COPY_KIND, paper:COPY_PAPER, v:1, savedAt:new Date().toISOString(),
+    data:{v:1, f:S.f, pencil:S.pencil}}, null, 1);
+}
+function fromCopy(text){
+  let o;
+  try { o = JSON.parse(text); } catch (e) { throw new Error('This file is not a copy of this paper.'); }
+  if (!o || o.kind !== COPY_KIND || o.paper !== COPY_PAPER || !o.data || typeof o.data.f !== 'object' || !o.data.f || Array.isArray(o.data.f))
+    throw new Error('This file is not a copy of this paper.');
+  if (o.v > 1 || o.data.v > 1) throw new Error('This copy was made by a newer version of this paper. Open the newest link and try again.');
+  const when = new Date(o.savedAt);
+  return {state:migrate({v:1, f:o.data.f, pencil:pencil(o.data.pencil).id, note:true, trash:null}),
+          when:isNaN(when) ? 'an earlier day' : shortDate(when)};
+}
+function closeMenu(refocus){
+  if (menu.hidden) return;
+  menu.hidden = true; tFolder.setAttribute('aria-expanded', 'false');
+  if (refocus) tFolder.focus({preventScroll:true});
+}
+function opt(label, hint, onclick){ return h('button', {class:'opt', type:'button', onclick}, label, hint ? h('small', {text:hint}) : null); }
+function openMenu(byKeyboard){
+  closeFan(false); disarm(); hideAsk();
+  menu.replaceChildren(
+    opt('Save a copy', lastCopy() ? `Keep this paper as a file. Last copy: ${lastCopy()}` :
+      'Keep this paper as a file on your phone or computer', saveCopy),
+    opt('Open a copy', `Pick the file named "${PAPER.name}" and a date. ${WHERE}`, () => copyFile.click()));
+  menu.hidden = false; tFolder.setAttribute('aria-expanded', 'true');
+  if (byKeyboard) menu.querySelector('.opt').focus();
+}
+// where a saved copy usually lands, said in the buyer's terms (the share sheet lets them choose, so we can't know)
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const WHERE = IOS ? 'On iPhone, look in Files under Recents or Downloads.'
+  : COARSE ? 'On a phone, look in Downloads (Files app).' : 'On a computer, look in your Downloads folder.';
+function lastCopy(){ try { const t = +localStorage.getItem(KEY + '-lastcopy'); return t ? shortDate(new Date(t)) : ''; } catch (e) { return ''; } }
+function noteCopy(){ try { localStorage.setItem(KEY + '-lastcopy', String(Date.now())); } catch (e) {} }
+async function saveCopy(){
+  const name = `${PAPER.name} ${new Date().toISOString().slice(0, 10)}.json`;
+  const text = copyText();
+  closeMenu(true);
+  let file = null;
+  try { file = new File([text], name, {type:'application/json'}); } catch (e) {}
+  // on phones the share sheet offers "Save to Files"; computers get a normal download
+  if (COARSE && file && navigator.canShare && navigator.canShare({files:[file]})){
+    try {
+      await navigator.share({files:[file], title:PAPER.name});
+      noteCopy(); showAsk(IOS ? 'Saved. Find it in Files' : 'Copy saved', 2600); say('Copy saved. ' + WHERE); foldSoon(1500); return;
+    }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([text], {type:'application/json'}));
+    const a = h('a', {href:url, download:name});
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    noteCopy(); showAsk('Copy saved to Downloads', 2600); say('Copy saved to your downloads'); foldSoon(1500);
+  } catch (e) { showAsk("This browser can't save files", 2600); say("This browser can't save files"); }
+}
+let pendingCopy = null;
+copyFile.addEventListener('change', async () => {
+  const f = copyFile.files && copyFile.files[0];
+  copyFile.value = '';
+  if (!f) return;
+  let got;
+  try { got = fromCopy(await f.text()); }
+  catch (e) { closeMenu(false); showAsk(e.message.length > 46 ? "That file isn't a copy of this paper" : e.message, 3000); say(e.message); return; }
+  pendingCopy = got.state;
+  // replacing the pages is a big step: ask first, inside the tray, like a note
+  menu.replaceChildren(h('p', {text:`Replace what's on these pages with the copy from ${got.when}?`}),
+    opt('Replace my pages', null, useCopy), opt('Keep my pages', null, () => { pendingCopy = null; closeMenu(true); }));
+  menu.hidden = false; tFolder.setAttribute('aria-expanded', 'true');
+  menu.querySelector('.opt').focus({preventScroll:true});
+});
+function useCopy(){
+  if (!pendingCopy || busy) return;
+  S = pendingCopy; pendingCopy = null;
+  dirty = true; persist();
+  paintAll(); showPencil(); note.hidden = true; showTrash();
+  closeMenu(true);
+  showAsk('Your copy is back', 2200); say('Your copy is back on these pages');
+  foldSoon(1500);
+}
+tFolder.addEventListener('click', e => { e.stopPropagation(); menu.hidden ? openMenu(e.detail === 0) : closeMenu(false); });
+tools.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden){ e.preventDefault(); pendingCopy = null; closeMenu(true); } });
+document.addEventListener('click', e => { if (!menu.hidden && !tools.contains(e.target)){ pendingCopy = null; closeMenu(false); } });
+
+// ---------------- toss: lift, crumple, throw, take back ----------------
+const basket = document.getElementById('t-toss'), oops = document.getElementById('oops'), ask = document.getElementById('ask');
+let busy = false, armed = null, actx = null, uid = 0, askT;
+function showAsk(t, ms){ clearTimeout(askT); ask.textContent = t; ask.hidden = false; oops.hidden = true; if (ms) askT = setTimeout(hideAsk, ms); }
+function hideAsk(){ clearTimeout(askT); ask.hidden = true; showTrash(); }
+function showTrash(){
+  const t = S.trash = validTrash(S.trash);
+  basket.classList.toggle('full', !!t);
+  oops.hidden = !t || !ask.hidden;
+}
+const sheetKeys = id => Object.keys(S.f).filter(k => k.startsWith(id + '.'));
+// what the basket throws away: the whole sheet, or (on a sheet with tabs) the page in front, e.g. {id:'debts.3'}
+const scopeOf = sh => (PAPER.scope && PAPER.scope(sh)) || {id:sh.dataset.sheet, label:sh.dataset.label};
+function wiggle(){
+  if (!REDUCED) basket.animate([{transform:'rotate(0)'}, {transform:'rotate(-8deg)'}, {transform:'rotate(6deg)'}, {transform:'rotate(-2deg)'}, {transform:'rotate(0)'}],
+    {duration:420, easing:'ease-out'});
+}
+
+function crinkle(){
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const sr = actx.sampleRate, len = Math.floor(sr * .85), buf = actx.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    let i = 0;
+    while (i < len){
+      const burst = Math.floor((Math.random() * .012 + .002) * sr), amp = (Math.random() * .8 + .2) * Math.sin(Math.PI * i / len);
+      for (let j = 0; j < burst && i + j < len; j++) d[i + j] = (Math.random() * 2 - 1) * amp * Math.exp(-j / (burst * .3));
+      i += burst + Math.floor(Math.random() * .028 * sr);
+    }
+    const src = actx.createBufferSource(), hp = actx.createBiquadFilter(), g = actx.createGain();
+    src.buffer = buf; hp.type = 'highpass'; hp.frequency.value = 1400; g.gain.value = .2;
+    src.connect(hp).connect(g).connect(actx.destination); src.start();
+  } catch (e) {}
+}
+
+function ballSVG(tint){
+  const r = Math.random, n = 15, P = [], I = [], id = 'bs' + (++uid);
+  for (let i = 0; i < n; i++){
+    const a = (i + (r() - .5) * .5) / n * Math.PI * 2, rr = 41 + r() * 7 - (i % 2) * 3.5;
+    P.push([50 + Math.cos(a) * rr, 50 + Math.sin(a) * rr]);
+  }
+  for (let k = 0; k < 6; k++){ const a = r() * Math.PI * 2, rr = r() * 24; I.push([50 + Math.cos(a) * rr, 50 + Math.sin(a) * rr]); }
+  const pt = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+  const near = q => I.reduce((b, p) => Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(b[0] - q[0], b[1] - q[1]) ? p : b, I[0]);
+  const shade = () => ['#FFFEFA', '#F7F5ED', '#EDEADF', '#E2DED2', '#D7D2C5'][(r() * 5) | 0];
+  let out = `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="${id}" cx="36%" cy="30%" r="78%">` +
+    `<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#2A2A20" stop-opacity=".3"/></radialGradient></defs>` +
+    `<polygon points="${P.map(pt).join(' ')}" fill="#FBFAF4" stroke="#C9C4B6" stroke-width="1"/>`;
+  for (let i = 0; i < n; i++){
+    const a = P[i], b = P[(i + 1) % n];
+    out += `<polygon points="${pt(a)} ${pt(b)} ${pt(near([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]))}" fill="${shade()}"/>`;
+  }
+  for (let k = 0; k < 5; k++) out += `<polygon points="${pt(I[k])} ${pt(I[(k + 1) % 6])} ${pt(I[(k + 3) % 6])}" fill="${shade()}" opacity=".8"/>`;
+  for (let k = 0; k < 10; k++){
+    const a = I[(r() * 6) | 0], b = P[(r() * n) | 0];
+    out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="#463F2E" stroke-opacity=".24" stroke-width=".8"/>`;
+  }
+  const inks = ['#2B5A8C', '#9AAAC0'].concat(tint || []);
+  for (let k = 0; k < 6; k++){
+    const a = I[(r() * 6) | 0], ang = r() * Math.PI, len = 6 + r() * 10, c = inks[k % inks.length];
+    out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${(a[0] + Math.cos(ang) * len).toFixed(1)}" y2="${(a[1] + Math.sin(ang) * len).toFixed(1)}" ` +
+      `stroke="${c}" stroke-width="${k < 2 ? 1.2 : 2.2}" opacity=".6" stroke-linecap="round"/>`;
+  }
+  return out + `<polygon points="${P.map(pt).join(' ')}" fill="url(#${id})"/></svg>`;
+}
+
+function creases(w, hh){
+  const r = Math.random;
+  let out = `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}" aria-hidden="true">`;
+  for (let k = 0; k < 16; k++){
+    const x = r() * w, y = r() * hh, a = r() * Math.PI * 2, l = (.25 + r() * .4) * Math.max(w, hh);
+    const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l, x3 = x + Math.cos(a + 1.1) * l * .7, y3 = y + Math.sin(a + 1.1) * l * .7;
+    out += `<polygon points="${x},${y} ${x2},${y2} ${x3},${y3}" fill="${k % 2 ? '#ffffff' : '#142033'}" opacity="${k % 2 ? .42 : .1}"/>`;
+  }
+  for (let k = 0; k < 22; k++){
+    const x = r() * w, y = r() * hh, a = r() * Math.PI, l = (.3 + r() * .7) * Math.max(w, hh);
+    const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l;
+    out += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#142033" stroke-opacity=".24" stroke-width="1.3"/>` +
+      `<line x1="${x + 1.3}" y1="${y + 1.3}" x2="${x2 + 1.3}" y2="${y2 + 1.3}" stroke="#ffffff" stroke-opacity=".6" stroke-width="1.1"/>`;
+  }
+  return out + `<rect width="100%" height="100%" fill="url(#crShade)"/></svg>`;
+}
+
+// geometry of the visible part of a sheet, and the keyframes that fold it into a ball
+// (transform and clip-path run as two effects, so the transform can stay on the compositor)
+function fold(sheetEl){
+  const r = sheetEl.getBoundingClientRect();
+  const y0 = Math.max(0, -r.top), y1 = Math.min(r.height, innerHeight - r.top);
+  const w = r.width, hh = Math.max(40, y1 - y0), cx = w / 2, cy = y0 + hh / 2;
+  const N = 32, per = 2 * (w + hh), P = [];
+  for (let i = 0; i < N; i++){
+    let d = per * i / N, x, y;
+    if (d < w){ x = d; y = y0; }
+    else if ((d -= w) < hh){ x = w; y = y0 + d; }
+    else if ((d -= hh) < w){ x = w - d; y = y0 + hh; }
+    else { d -= w; x = 0; y = y0 + hh - d; }
+    P.push([x, y]);
+  }
+  const R = Math.min(w, hh) * .4, rnd = Math.random;
+  // a lumpy round outline (a few dents), not a star
+  const end = P.map(([x, y], i) => {
+    const a = Math.atan2(y - cy, x - cx), rr = R * (i % 5 === 0 ? .78 : .9 + rnd() * .12);
+    return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr];
+  });
+  // halfway: edges pulled in unevenly, like a sheet squeezed from both sides
+  const mid = P.map(([x, y], i) => {
+    const t = .42 + rnd() * .22;
+    return [x + (end[i][0] - x) * t + (rnd() - .5) * w * .12, y + (end[i][1] - y) * t + (rnd() - .5) * hh * .09];
+  });
+  const poly = pts => 'polygon(' + pts.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(',') + ')';
+  const BALL = Math.round(Math.max(70, Math.min(104, w * .26)));
+  const sc = BALL / (2 * R * .93), rot = (rnd() < .5 ? -1 : 1) * (16 + rnd() * 16), tilt = rnd() < .5 ? -1 : 1;
+  const tf = (o, ty, sz, rx, ry, rz) => ({offset:o,
+    transform:`perspective(1100px) translateY(${ty}px) scale(${sz.toFixed(3)}) rotateX(${rx}deg) rotateY(${ry}deg) rotate(${rz.toFixed(1)}deg)`});
+  const cf = (o, pts) => ({offset:o, clipPath:poly(pts), webkitClipPath:poly(pts)});
+  return {
+    w, y0, hh, cx, cy, BALL, center:[r.left + cx, r.top + cy],
+    tf:[tf(0, 0, 1, 0, 0, 0), tf(.16, -8, .985, 2, -2 * tilt, -.6), tf(.55, -4, .45 + sc * .55, 16, -20 * tilt, rot * .35),
+      tf(1, 0, sc, 8, -10 * tilt, rot)],
+    cf:[cf(0, P), cf(.16, P), cf(.55, mid), cf(1, end)]
+  };
+}
+// wait for animations, but never longer than their length plus a margin: a throttled or background tab
+// must not leave a page half thrown away
+const settle = (anims, ms) => Promise.race([Promise.all([].concat(anims).map(a => a.finished.catch(() => {}))),
+  new Promise(r => setTimeout(r, ms + 350))]);
+const reverse = frames => frames.slice().reverse().map(f => ({...f, offset:1 - f.offset}));
+function addCreases(sheetEl, g){
+  const c = h('div', {class:'creases'});
+  c.style.top = g.y0 + 'px'; c.style.width = g.w + 'px'; c.style.height = g.hh + 'px';
+  c.innerHTML = creases(Math.round(g.w), Math.round(g.hh));
+  sheetEl.append(c);
+  return c;
+}
+function makeBall(D, at, tint){
+  const b = h('div', {class:'ball'});
+  b.innerHTML = ballSVG(tint);
+  b.style.width = b.style.height = D + 'px';
+  b.style.left = (at[0] - D / 2) + 'px'; b.style.top = (at[1] - D / 2) + 'px';
+  fx.append(b);
+  return b;
+}
+function arc(from, to, spin){
+  const H = Math.max(90, Math.abs(to[0] - from[0]) * .35 + 70), out = [];
+  for (let i = 0; i <= 14; i++){
+    const t = i / 14, x = (to[0] - from[0]) * t, y = (to[1] - from[1]) * t - H * 4 * t * (1 - t);
+    out.push({transform:`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${(t * spin).toFixed(0)}deg) scale(${(1 - .45 * t).toFixed(3)})`});
+  }
+  return out;
+}
+function binMouth(){ const b = basket.querySelector('svg').getBoundingClientRect(); return [b.left + b.width * .5, b.top + b.height * .28]; }
+const tintOf = saved => [...new Set(Object.values(saved).filter(v => typeof v === 'string' && PENCILS.some(p => p.id === v)))].slice(0, 2).map(id => pencil(id).c);
+
+// first tap lifts the page and asks; a second tap on the basket within 4 s throws it away
+function arm(sh){
+  disarm();
+  closeFan(false);
+  const sc = scopeOf(sh);
+  if (!sheetKeys(sc.id).length){ wiggle(); showAsk('This page is already blank', 1800); say('This page is already blank'); return; }
+  const lift = REDUCED ? null : sh.animate([{transform:'none'}, {transform:'translateY(-6px) rotate(-.35deg)'}],
+    {duration:220, easing:'ease-out', fill:'forwards'});
+  sh.classList.add('busy');
+  armed = {sheet:sh, lift, y:scrollY, t:setTimeout(disarm, 4000)};
+  // a page behind a tab is named, and what else goes (or stays) is said on the note itself, not only to screen readers
+  showAsk((sc.id !== sh.dataset.sheet ? `Toss ${sc.label}?` : 'Toss this page?') + ' Tap the basket again' + (sc.note ? '\n' + sc.note : ''));
+  say(`Toss the ${sc.label} page? Press the basket again to throw it away.` + (sc.note ? ' ' + sc.note : ''));
+}
+function disarm(){
+  if (!armed) return;
+  const a = armed; armed = null; clearTimeout(a.t);
+  if (a.lift) a.lift.cancel();
+  if (!busy) a.sheet.classList.remove('busy');
+  hideAsk();
+}
+document.addEventListener('pointerdown', e => { if (armed && !basket.contains(e.target)) disarm(); }, true);
+addEventListener('scroll', () => { if (armed && Math.abs(scrollY - armed.y) > 60) disarm(); }, {passive:true});
+basket.addEventListener('click', () => {
+  if (busy) return;
+  const sh = currentSheet();
+  if (armed && armed.sheet === sh){ const a = armed; armed = null; clearTimeout(a.t); hideAsk(); toss(sh, a.lift); }
+  else arm(sh);
+});
+
+async function toss(sh, lift){
+  busy = true;
+  const {id, label} = scopeOf(sh);
+  if (document.activeElement && sh.contains(document.activeElement)) document.activeElement.blur();
+  const saved = {};
+  sheetKeys(id).forEach(k => { saved[k] = S.f[k]; delete S.f[k]; });
+  S.trash = {id, saved, at:Date.now()};       // kept until she writes on that page again, tosses another, or a day passes
+  dirty = true; persist();
+  sh.inert = true;
+  let ball = null, c = null;
+  try {
+    try { navigator.vibrate && navigator.vibrate([10, 40, 10]); } catch (e) {}
+    if (REDUCED){
+      await settle(sh.animate([{opacity:1}, {opacity:0}], {duration:200, fill:'forwards'}), 200);
+      paintAll();
+      sh.getAnimations().forEach(a => a.cancel());
+      await settle(sh.animate([{opacity:0}, {opacity:1}], {duration:200}), 200);
+    } else {
+      crinkle();
+      const g = fold(sh);
+      sh.classList.add('busy');
+      sh.style.transformOrigin = `${g.cx}px ${g.cy}px`;
+      c = addCreases(sh, g);
+      c.animate([{opacity:0}, {opacity:0, offset:.16}, {opacity:.9, offset:.55}, {opacity:1}], {duration:880, fill:'forwards'});
+      const t1 = sh.animate(g.tf, {duration:880, easing:'cubic-bezier(.45,0,.35,1)', fill:'forwards'});
+      const t2 = sh.animate(g.cf, {duration:880, easing:'cubic-bezier(.45,0,.35,1)', fill:'forwards'});
+      if (lift) lift.cancel();
+      // the ball fades in over the last moments of the squeeze, so the page turns into it instead of swapping
+      ball = makeBall(g.BALL, g.center, tintOf(saved));
+      ball.animate([{opacity:0, transform:'scale(.9)'}, {opacity:0, transform:'scale(.9)', offset:.74}, {opacity:1, transform:'scale(1)'}],
+        {duration:880, easing:'cubic-bezier(.45,0,.35,1)'});
+      await settle([t1, t2], 880);
+      sh.style.visibility = 'hidden';
+      sh.getAnimations().forEach(a => a.cancel());
+      c.remove(); c = null; sh.classList.remove('busy');
+      const to = binMouth(), fr = arc(g.center, to, 540);
+      const last = fr[fr.length - 1].transform;
+      fr.push({transform:last.replace(/translate\(([^,]+),([^)]+)\)/, (m, x, y) => `translate(${x},${(parseFloat(y) + 16).toFixed(1)}px)`).replace(/scale\([^)]+\)/, 'scale(.42)'), opacity:0});
+      fr.forEach((f, i) => { f.offset = i < fr.length - 1 ? i / (fr.length - 1) * .9 : 1; });
+      await settle(ball.animate(fr, {duration:720, easing:'linear', fill:'forwards'}), 720);
+      ball.remove(); ball = null;
+      showTrash(); wiggle();
+      paintAll();
+      sh.style.visibility = '';
+      await settle(sh.animate([{opacity:0, transform:'translateY(-22px) scale(.985)'}, {opacity:1, transform:'none'}],
+        {duration:420, easing:'cubic-bezier(.2,.7,.2,1)'}), 420);
+    }
+  } finally {
+    if (ball) ball.remove();
+    if (c) c.remove();
+    sh.getAnimations().forEach(a => a.cancel());
+    sh.style.visibility = ''; sh.style.transformOrigin = '';
+    sh.classList.remove('busy'); sh.inert = false;
+    paintAll(); showTrash();
+    busy = false;
+  }
+  say(`${label} page thrown away. Take it back is above the basket.`);
+  foldSoon(600);
+}
+
+async function takeBack(){
+  if (busy || armed || !S.trash) return;
+  busy = true;
+  setTray(true);
+  const t = S.trash, sh = byId(t.id.split('.')[0]), hadFocus = document.activeElement === oops;
+  if (PAPER.reveal) PAPER.reveal(t.id);       // bring a tossed tab page to the front before it comes back
+  S.trash = null; showTrash();
+  sheetKeys(t.id).forEach(k => delete S.f[k]);
+  Object.assign(S.f, t.saved);
+  dirty = true; persist();
+  sh.inert = true;
+  let ball = null, c = null;
+  try {
+    const r0 = sh.getBoundingClientRect();
+    if (r0.bottom < 80 || r0.top > innerHeight - 80) sh.scrollIntoView({block:'start'});
+    if (REDUCED){ paintAll(); }
+    else {
+      await settle(sh.animate([{opacity:1}, {opacity:0}], {duration:160, fill:'forwards'}), 160);
+      sh.style.visibility = 'hidden';
+      sh.getAnimations().forEach(a => a.cancel());
+      paintAll();
+      const g = fold(sh), from = binMouth();
+      ball = makeBall(g.BALL, from, tintOf(t.saved));
+      // fly from the basket back to the middle of the page, growing as it comes closer
+      const back = arc(from, g.center, -540).map((f, i, a) => ({transform:f.transform.replace(/scale\([^)]+\)/, `scale(${(.55 + .45 * i / (a.length - 1)).toFixed(3)})`)}));
+      await settle(ball.animate(back, {duration:600, easing:'linear', fill:'forwards'}), 600);
+      ball.remove(); ball = null;
+      sh.classList.add('busy');
+      sh.style.transformOrigin = `${g.cx}px ${g.cy}px`;
+      sh.style.visibility = '';
+      c = addCreases(sh, g);
+      c.animate([{opacity:1}, {opacity:.9, offset:.45}, {opacity:0, offset:.84}, {opacity:0}], {duration:820, fill:'forwards'});
+      const t1 = sh.animate(reverse(g.tf), {duration:820, easing:'cubic-bezier(.45,0,.35,1)'});
+      const t2 = sh.animate(reverse(g.cf), {duration:820, easing:'cubic-bezier(.45,0,.35,1)'});
+      await settle([t1, t2], 820);
+    }
+  } finally {
+    if (ball) ball.remove();
+    if (c) c.remove();
+    sh.getAnimations().forEach(a => a.cancel());
+    sh.style.visibility = ''; sh.style.transformOrigin = '';
+    sh.classList.remove('busy'); sh.inert = false;
+    paintAll();
+    busy = false;
+  }
+  say(`${scopeOf(sh).label} page is back.`);
+  foldSoon(600);
+  if (hadFocus || document.activeElement === document.body) basket.focus({preventScroll:true});
+}
+oops.addEventListener('click', takeBack);
+showTrash();
+
+// ---------------- the tray folds into a pencil on phones ----------------
+// so it never sits on the paper while reading; it opens on a tap and folds again after use, on scroll or a tap away
+const tTray = document.getElementById('t-tray'), trayLabel = document.getElementById('trayLabel');
+const NARROW = matchMedia('(max-width: 999px)');
+let trayOpen = true, trayY = 0;
+function setTray(open){
+  trayOpen = !!open || !NARROW.matches;
+  tools.classList.toggle('foldable', NARROW.matches);
+  tools.classList.toggle('collapsed', !trayOpen);
+  tTray.setAttribute('aria-expanded', trayOpen ? 'true' : 'false');
+  trayLabel.textContent = trayOpen ? 'hide' : 'tools';
+  if (!trayOpen){ closeFan(false); closeMenu(false); }
+  trayY = scrollY;
+}
+const idle = () => !armed && !busy && fan.hidden && menu.hidden && !pendingCopy;
+function foldSoon(ms){ if (NARROW.matches) setTimeout(() => { if (trayOpen && idle()) setTray(false); }, ms || 0); }
+tTray.addEventListener('click', e => { e.stopPropagation(); setTray(!trayOpen); });
+if (NARROW.addEventListener) NARROW.addEventListener('change', () => setTray(false)); else NARROW.addListener(() => setTray(false));
+addEventListener('scroll', () => { if (trayOpen && NARROW.matches && Math.abs(scrollY - trayY) > 80 && idle()) setTray(false); }, {passive:true});
+document.addEventListener('pointerdown', e => { if (trayOpen && NARROW.matches && !tools.contains(e.target) && idle()) setTray(false); }, true);
+setTray(false);
+})();
+</script>
+
+</body>
+</html>
